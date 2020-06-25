@@ -1,0 +1,13 @@
+.gcloudignore
+.git
+.gitignore
+/.bundle
+/log/*
+/tmp/*
+/storage/*
+.byebug_history
+/public/packs-test
+/node_modules
+/yarn-error.log
+yarn-debug.log*
+.yarn-integrity
