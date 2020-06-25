@@ -27,9 +27,8 @@ before_deploy:
   - RAILS_ENV=production bin/rails assets:precompile
   # - bundle exec rake appengine:exec -- bin/rails db:prepare
 deploy:
-  provider: gae
-  keyfile: service-account.json
-  project: $GOOGLE_CLOUD_PROJECT
+  provider: script
+  script: ./deploy.sh
   skip_cleanup: true
   on:
     branch: master
