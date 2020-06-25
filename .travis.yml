@@ -4,13 +4,31 @@ cache:
   bundler: true
   yarn: true
   directories:
+    - "$HOME/google-cloud-sdk/"
     - "node_modules"
 services:
   - postgresql
+before_install:
+  - openssl aes-256-cbc -K $encrypted_9f3b5599b056_key -iv $encrypted_9f3b5599b056_iv -in service-account.json.enc -out service-account.json -d
+  - if [ ! -d ${HOME}/google-cloud-sdk ]; then
+      curl https://sdk.cloud.google.com | bash;
+    fi
+  - gcloud auth activate-service-account --key-file service-account.json
 install:
+  - gcloud config set project $GOOGLE_CLOUD_PROJECT
   - bundle install --jobs=3 --retry=3 --deployment
   - nvm install
   - bin/yarn
   - bin/rails db:prepare
 script:
   - bundle exec rspec
+before_deploy:
+  - openssl aes-256-cbc -K $encrypted_8ad82cc635a3_key -iv $encrypted_8ad82cc635a3_iv -in config/master.key.enc -out config/master.key -d
+  - RAILS_ENV=production bin/rails assets:precompile
+  - bundle exec rake appengine:exec -- bin/rails db:prepare
+deploy:
+  provider: script
+  script: ./deploy.sh
+  skip_cleanup: true
+  on:
+    branch: master

@@ -84,5 +84,6 @@ test:
 production:
   <<: *default
   database: app_production
-  username: app
-  password: <%= ENV['APP_DATABASE_PASSWORD'] %>
+  host: /cloudsql/<%= Rails.application.credentials.db&.fetch(:instance_connection_name) %>
+  username: <%= Rails.application.credentials.db&.fetch(:username) %>
+  password: <%= Rails.application.credentials.db&.fetch(:password) %>
