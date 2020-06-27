@@ -1,3 +1,5 @@
 RSpec.configure do |config|
-  config.include Devise::Test::IntegrationHelpers, type: :system
+  %i(request system).each do |type|
+    config.include Devise::Test::IntegrationHelpers, type: type
+  end
 end

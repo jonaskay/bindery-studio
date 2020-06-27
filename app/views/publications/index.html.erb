@@ -1,0 +1,6 @@
+<%= link_to 'Add Content', new_publication_url %>
+<ul>
+  <% @publications.each do |publication| %>
+    <li><%= link_to publication.title, publication %></li>
+  <% end %>
+</ul>

@@ -1,0 +1,14 @@
+<h1>New Content</h1>
+<% if @publication.errors.any? %>
+  <p>Please fix the following errors:</p>
+  <ul>
+    <% @publication.errors.full_messages.each do |message| %>
+      <li><%= message %></li>
+    <% end %>
+  </ul>
+<% end %>
+<%= form_with model: @publication do |f| %>
+  <%= f.label :title %>
+  <%= f.text_field :title %>
+  <%= f.submit "Create" %>
+<% end %>
