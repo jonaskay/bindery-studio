@@ -61,6 +61,9 @@ group :test do
   # Enable system tests
   gem 'capybara'
   gem 'selenium-webdriver'
+
+  # Download drivers for Selenium
+  gem 'webdrivers', '~> 4.0' if ENV['SELENIUM_HOST'].nil?
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
