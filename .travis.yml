@@ -1,5 +1,7 @@
 sudo: false
 language: ruby
+addons:
+  chrome: stable
 cache:
   bundler: true
   yarn: true

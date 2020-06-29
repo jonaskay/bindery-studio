@@ -16,3 +16,23 @@ services:
       - "3000:3000"
     depends_on:
       - db
+  selenium:
+    image: selenium/standalone-chrome
+    ports:
+      - "4444:4444"
+  test:
+    build: .
+    ports:
+      - "3001:3001"
+    depends_on:
+      - db
+      - selenium
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: bin/spring server
+    environment:
+      TEST_APP_HOST: test
+      TEST_APP_PORT: 3001
+      SELENIUM_HOST: selenium
+      RAILS_ENV: test

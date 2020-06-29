@@ -5,10 +5,6 @@ class PublicationsController < ApplicationController
     @publications = current_user.publications
   end
 
-  def show
-    @publication = find_publication
-  end
-
   def new
     @publication = Publication.new
   end
@@ -21,6 +17,26 @@ class PublicationsController < ApplicationController
       flash.now[:alert] = "Oops! Could not create content."
       render :new
     end
+  end
+
+  def edit
+    @publication = find_publication
+  end
+
+  def update
+    @publication = find_publication
+    if @publication.update(publication_params)
+      redirect_to edit_publication_url, notice: "Content updated!"
+    else
+      flash.now[:alert] = "Oops! Could not update content."
+      render :edit
+    end
+  end
+
+  def destroy
+    @publication = find_publication
+    @publication.destroy
+    redirect_to publications_url, notice: "Content deleted."
   end
 
   private

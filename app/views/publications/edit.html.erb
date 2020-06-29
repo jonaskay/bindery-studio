@@ -1,0 +1,7 @@
+<h1><%= @publication.title %></h1>
+<%= render 'shared/errors', obj: @publication %>
+<%= form_with model: @publication, local: true do |f| %>
+  <%= render 'fields', f: f %>
+  <%= f.submit "Update" %>
+<% end %>
+<%= link_to "Delete", publication_url(@publication), method: :delete, data: { confirm: "Are you sure?" } %>
