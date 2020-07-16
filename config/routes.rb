@@ -6,5 +6,7 @@ Rails.application.routes.draw do
 
   get 'welcome/index'
 
-  resources :publications, path: 'content', except: [:show]
+  resources :publications, path: 'content', except: [:show] do
+    resources :publishings, path: 'publish', only: [:create]
+  end
 end

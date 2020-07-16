@@ -13,7 +13,7 @@ addons:
     - google-chrome-stable
     - chromium-chromedriver
 before_install:
-  - openssl aes-256-cbc -K $encrypted_9f3b5599b056_key -iv $encrypted_9f3b5599b056_iv -in service-account.json.enc -out service-account.json -d
+  - openssl aes-256-cbc -K $encrypted_9f3b5599b056_key -iv $encrypted_9f3b5599b056_iv -in service-account-travis.json.enc -out service-account-travis.json -d
   - if [ ! -d ${HOME}/google-cloud-sdk ]; then
       curl https://sdk.cloud.google.com | bash;
     fi
@@ -29,6 +29,7 @@ before_script:
 script:
   - bundle exec rspec
 before_deploy:
+  - openssl aes-256-cbc -K $encrypted_720b47c93441_key -iv $encrypted_720b47c93441_iv -in service-account-compute.json.enc -out service-account-compute.json -d
   - openssl aes-256-cbc -K $encrypted_8ad82cc635a3_key -iv $encrypted_8ad82cc635a3_iv -in config/master.key.enc -out config/master.key -d
   - RAILS_ENV=production bin/rails assets:precompile
   - bundle exec rake appengine:exec -- bin/rails db:prepare
