@@ -28,7 +28,7 @@ class Publisher
   private
 
   def instance
-    Google::Apis::ComputeV1::Instance.new(name: "builder-#{SecureRandom.uuid}")
+    Google::Apis::ComputeV1::Instance.new(name: "site-#{SecureRandom.uuid}")
   end
 
   def source_instance_template
