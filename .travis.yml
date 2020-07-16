@@ -17,7 +17,7 @@ before_install:
   - if [ ! -d ${HOME}/google-cloud-sdk ]; then
       curl https://sdk.cloud.google.com | bash;
     fi
-  - gcloud auth activate-service-account --key-file service-account.json
+  - gcloud auth activate-service-account --key-file service-account-travis.json
 install:
   - gcloud config set project $GOOGLE_CLOUD_PROJECT
   - bundle install --jobs=3 --retry=3 --deployment
