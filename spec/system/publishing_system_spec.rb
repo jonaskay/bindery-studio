@@ -20,6 +20,7 @@ RSpec.describe "Content publishing", type: :system do
     click_link "Publish"
 
     expect(page).to have_text("Content is being published. This process will take a few minutes.")
+    expect(page).to have_link("Visit site")
     expect(page).not_to have_link("Publish")
   end
 end

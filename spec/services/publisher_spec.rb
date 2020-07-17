@@ -16,8 +16,9 @@ RSpec.describe Publisher, type: :model do
     context "when project is valid" do
       let(:publisher) { Publisher.new(project: "foo", zone: "bar", instance_template: "baz") }
 
-      it "returns an operation" do
-        expect(subject).to be_instance_of(Google::Apis::ComputeV1::Operation)
+      it "returns site name" do
+        expect(subject).to be_instance_of(String)
+        expect(subject).to include("site-")
       end
     end
 

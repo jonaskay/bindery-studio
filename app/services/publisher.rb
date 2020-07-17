@@ -17,19 +17,20 @@ class Publisher
     service = Google::Apis::ComputeV1::ComputeService.new
     service.authorization = Google::Auth.get_application_default(SCOPES)
 
-    service.insert_instance(
+    name = "site-#{SecureRandom.uuid}"
+    instance = Google::Apis::ComputeV1::Instance.new(name: name)
+
+    response = service.insert_instance(
       @project,
       @zone,
       instance,
       source_instance_template: source_instance_template
     )
+
+    return name
   end
 
   private
-
-  def instance
-    Google::Apis::ComputeV1::Instance.new(name: "site-#{SecureRandom.uuid}")
-  end
 
   def source_instance_template
     instance_template = Rails.application.credentials.gcp.fetch(:instance_template)

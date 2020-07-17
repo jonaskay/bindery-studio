@@ -5,7 +5,7 @@
   <%= f.submit "Update" %>
 <% end %>
 <% if @publication.published_at %>
-  <div>Published</div>
+  <%= link_to "Visit site", @publication.url %>
 <% else %>
   <%= link_to "Publish", publication_publishings_url(@publication), method: :post %>
 <% end %>
