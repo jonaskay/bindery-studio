@@ -13,12 +13,11 @@ addons:
     - google-chrome-stable
     - chromium-chromedriver
 before_install:
-  - openssl aes-256-cbc -K $encrypted_720b47c93441_key -iv $encrypted_720b47c93441_iv -in service-account-compute.json.enc -out service-account-compute.json -d
-  - openssl aes-256-cbc -K $encrypted_9f3b5599b056_key -iv $encrypted_9f3b5599b056_iv -in service-account-travis.json.enc -out service-account-travis.json -d
+  - openssl aes-256-cbc -K $encrypted_9f3b5599b056_key -iv $encrypted_9f3b5599b056_iv -in service-account-travis-ci.json.enc -out service-account-travis-ci.json -d
   - if [ ! -d ${HOME}/google-cloud-sdk ]; then
       curl https://sdk.cloud.google.com | bash;
     fi
-  - gcloud auth activate-service-account --key-file service-account-travis.json
+  - gcloud auth activate-service-account --key-file service-account-travis-ci.json
 install:
   - gcloud config set project $GOOGLE_CLOUD_PROJECT
   - bundle install --jobs=3 --retry=3 --deployment

@@ -17,7 +17,7 @@ services:
     depends_on:
       - db
     environment:
-      GOOGLE_APPLICATION_CREDENTIALS: service-account-compute.json
+      GOOGLE_APPLICATION_CREDENTIALS: service-account-local.json
   selenium:
     image: selenium/standalone-chrome
     ports:
@@ -34,7 +34,7 @@ services:
       - /app/node_modules
     command: bin/spring server
     environment:
-      GOOGLE_APPLICATION_CREDENTIALS: service-account-compute.json
+      GOOGLE_APPLICATION_CREDENTIALS: service-account-local.json
       RAILS_ENV: test
       SELENIUM_HOST: selenium
       TEST_APP_HOST: test
