@@ -1,4 +1,6 @@
 class Publication < ApplicationRecord
+  scope :published, -> { where.not(published_at: nil) }
+
   has_one :site, dependent: :destroy
 
   belongs_to :user
@@ -6,6 +8,10 @@ class Publication < ApplicationRecord
   delegate :url, to: :site
 
   validates :title, presence: true
+
+  def name
+    site&.name
+  end
 
   def publish
     return false unless published_at.nil?

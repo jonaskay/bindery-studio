@@ -101,6 +101,8 @@ GEM
       railties (>= 5.0.0)
     faraday (1.0.1)
       multipart-post (>= 1.2, < 3)
+    fast_jsonapi (1.5)
+      activesupport (>= 4.2)
     ffi (1.13.1)
     formatador (0.2.5)
     globalid (0.4.2)
@@ -379,6 +381,7 @@ DEPENDENCIES
   capybara
   devise
   factory_bot_rails
+  fast_jsonapi
   google-api-client (~> 0.34)
   guard-rspec
   jbuilder (~> 2.7)

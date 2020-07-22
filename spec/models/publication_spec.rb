@@ -21,6 +21,22 @@ RSpec.describe Publication, type: :model do
     end
   end
 
+  describe "#name" do
+    let(:publication) { build(:publication) }
+
+    subject { publication.name }
+
+    context "when site is not nil" do
+      before { create(:site, publication: publication) }
+
+      it { is_expected.to eq("name") }
+    end
+
+    context "when site is nil" do
+      it { is_expected.to be_nil }
+    end
+  end
+
   describe "#publish" do
     let(:publisher) { class_double("Publisher").as_stubbed_const }
 
