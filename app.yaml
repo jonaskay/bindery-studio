@@ -1,5 +1,4 @@
 runtime: ruby25
 entrypoint: bundle exec rails server -u puma -p $PORT
 env_variables:
-  GOOGLE_APPLICATION_CREDENTIALS: service-account-compute.json
   RAILS_ENV: production
