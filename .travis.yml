@@ -12,6 +12,9 @@ addons:
   apt:
     - google-chrome-stable
     - chromium-chromedriver
+env:
+  global:
+    - GOOGLE_APPLICATION_CREDENTIALS=service-account-travis-ci.json
 before_install:
   - openssl aes-256-cbc -K $encrypted_9f3b5599b056_key -iv $encrypted_9f3b5599b056_iv -in service-account-travis-ci.json.enc -out service-account-travis-ci.json -d
   - if [ ! -d ${HOME}/google-cloud-sdk ]; then
