@@ -1,4 +1,4 @@
-class Pubsub::MessagesController < ApplicationController
+class Pubsub::MessagesController < ActionController::API
   before_action :validate_bearer_token
 
   def create
