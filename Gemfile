@@ -31,11 +31,15 @@ gem 'bootsnap', '>= 1.4.2', require: false
 # Run tasks on App Engine
 gem 'appengine'
 
+# Connect to the Compute Engine API
+gem 'google-api-client', '~> 0.34'
+
+# Verify Google ID tokens
+gem 'google-id-token'
+
 # Handle authentication with Devise
 gem 'devise'
 
-# Connect to the Compute Engine API
-gem 'google-api-client', '~> 0.34'
 
 # Serialize JSON responses
 gem 'fast_jsonapi'
