@@ -2,6 +2,8 @@ require 'googleauth'
 require 'google/apis/compute_v1'
 
 class Publisher
+  class Error < StandardError; end
+
   SCOPES = ["https://www.googleapis.com/auth/compute"]
 
   def initialize(options = {})
@@ -11,6 +13,23 @@ class Publisher
 
   def self.publish
     self.new.publish
+  end
+
+  def self.read(data)
+    payload = JSON.parse(Base64.decode64(data))
+    message = Message.new(payload)
+
+    unless message.valid?
+      error = message.errors.full_messages.first
+      raise Publisher::Error.new("Invalid message: #{error}")
+    end
+
+    publication = Site.find_by(name: message.publication)&.publication
+    if publication.nil?
+      raise Publisher::Error.new("Couldn't find publication")
+    end
+
+    publication.update_attribute(:deployed_at, message.timestamp)
   end
 
   def publish

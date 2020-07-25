@@ -4,13 +4,67 @@ require 'support/googleapis'
 RSpec.describe Publisher, type: :model do
   include Googleapis
 
-  before do
-    handle_oauth_request
-    stub(:insert_instance, { "project" => "foo" }).with_json('{ "id": "42" }')
-    stub(:insert_instance, { "project" => "invalid" }).with_json('{ "error": { "code": 404 } }', status: 404)
+  describe ".read" do
+    let(:site) { create(:site, name: "foo") }
+
+    subject do
+      encoded_message = Base64.encode64(message.to_json)
+
+      described_class.read(encoded_message)
+    end
+
+    context "when message is valid" do
+      let(:message) {
+        {
+          publication: "foo",
+          status: "success",
+          timestamp: "1970-01-01T00:00:00.000Z"
+        }
+      }
+
+      it "updates publication to deployed" do
+        publication = site.publication
+
+        expect { subject }.to change { publication.reload.deployed_at.to_s }.to("1970-01-01 00:00:00 UTC")
+      end
+    end
+
+    context "when message is invalid" do
+      let(:message) {
+        {
+          publication: "   ",
+          status: "invalid",
+          timestamp: "invalid"
+        }
+      }
+
+      it "raises an error" do
+        expect { subject }.to raise_error(Publisher::Error, "Invalid message: Publication can't be blank")
+      end
+    end
+
+    context "when message publication doesn't exist" do
+      let(:message) {
+        {
+          publication: "bar",
+          status: "success",
+          timestamp: "1970-01-01T00:00:00.000Z"
+        }
+      }
+
+      it "raises an error" do
+        expect { subject }.to raise_error(Publisher::Error, "Couldn't find publication")
+      end
+    end
   end
 
   describe "#publish" do
+    before do
+      handle_oauth_request
+      stub(:insert_instance, { "project" => "foo" }).with_json('{ "id": "42" }')
+      stub(:insert_instance, { "project" => "invalid" }).with_json('{ "error": { "code": 404 } }', status: 404)
+    end
+
     subject { publisher.publish }
 
     context "when project is valid" do

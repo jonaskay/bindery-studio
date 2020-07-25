@@ -37,6 +37,44 @@ RSpec.describe Publication, type: :model do
     end
   end
 
+  describe "#published?" do
+    subject { publication.published? }
+
+    context "when published_at is not nil" do
+      let(:publication) { create(:publication, published_at: Time.now) }
+
+      it { is_expected.to be true }
+    end
+
+    context "when published_at is nil" do
+      let(:publication) { create(:publication, published_at: nil) }
+
+      it { is_expected.to be false }
+    end
+  end
+
+  describe "#deployed?" do
+    subject { publication.deployed? }
+
+    context "when deployed_at and published_at are not nil" do
+      let(:publication) { create(:publication, published_at: Time.now, deployed_at: Time.now) }
+
+      it { is_expected.to be true }
+    end
+
+    context "when published_at is nil" do
+      let(:publication) { create(:publication, published_at: nil, deployed_at: Time.now) }
+
+      it { is_expected.to be false }
+    end
+
+    context "when deployed_at is nil" do
+      let(:publication) { create(:publication, published_at: Time.now, deployed_at: nil) }
+
+      it { is_expected.to be false }
+    end
+  end
+
   describe "#publish" do
     let(:publisher) { class_double("Publisher").as_stubbed_const }
 

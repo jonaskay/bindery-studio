@@ -13,6 +13,14 @@ class Publication < ApplicationRecord
     site&.name
   end
 
+  def published?
+    !published_at.nil?
+  end
+
+  def deployed?
+    published? && !deployed_at.nil?
+  end
+
   def publish
     return false unless published_at.nil?
 

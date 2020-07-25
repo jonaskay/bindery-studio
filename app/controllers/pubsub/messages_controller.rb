@@ -2,6 +2,7 @@ class Pubsub::MessagesController < ActionController::API
   before_action :validate_bearer_token
 
   def create
+    Publisher.read(params[:message][:data])
     head :no_content
   end
 

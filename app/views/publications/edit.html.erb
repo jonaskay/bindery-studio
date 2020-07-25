@@ -4,8 +4,12 @@
   <%= render 'fields', f: f %>
   <%= f.submit "Update" %>
 <% end %>
-<% if @publication.published_at %>
-  <%= link_to "Visit site", @publication.url %>
+<% if @publication.published? %>
+  <% if @publication.deployed? %>
+    <%= link_to "Visit site", @publication.url %>
+  <% else %>
+    <span>Publishing...</span>
+  <% end %>
 <% else %>
   <%= link_to "Publish", publication_publishings_url(@publication), method: :post %>
 <% end %>
