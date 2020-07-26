@@ -9,7 +9,7 @@ RSpec.describe "Pubsub::Messages", type: :request do
                                                       .and_return(false)
 
       headers = { "Content-Type" => "application/json", "Authorization" => auth }
-      data = { publication: create(:site).name, status: "success", timestamp: "1970-01-01T00:00:00.000Z" }
+      data = { publication: create(:publication).name, status: "success", timestamp: "1970-01-01T00:00:00.000Z" }
       encoded = Base64.encode64(data.to_json)
       params = { message: { data: encoded } }.to_json
 

@@ -32,17 +32,21 @@ RSpec.describe "Content management", type: :system, js: true do
 
     it "enables user to create a content piece" do
       fill_in "Title", with: "My Title"
+      fill_in "Content ID", with: "my-id"
       click_button "Create"
 
       expect(page).to have_text("Content created!")
     end
 
-    it "prevents user from creating a content piece without title" do
+    it "prevents user from creating a content piece with invalid data" do
       fill_in "Title", with: "   "
+      fill_in "Content ID", with: "   "
+
       click_button "Create"
 
       expect(page).to have_text("Oops! Could not create content.")
       expect(page).to have_text("Title can't be blank")
+      expect(page).to have_text("Content ID can't be blank")
     end
   end
 
@@ -53,6 +57,8 @@ RSpec.describe "Content management", type: :system, js: true do
 
     it "enables user to edit a content piece" do
       click_link "My Publication"
+
+      expect(page).to have_field("Content ID", disabled: true)
 
       fill_in "Title", with: "   "
       click_button "Update"

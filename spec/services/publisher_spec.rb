@@ -5,7 +5,7 @@ RSpec.describe Publisher, type: :model do
   include Googleapis
 
   describe ".read" do
-    let(:site) { create(:site, name: "foo") }
+    let(:publication) { create(:publication, name: "foo") }
 
     subject do
       encoded_message = Base64.encode64(message.to_json)
@@ -23,8 +23,6 @@ RSpec.describe Publisher, type: :model do
       }
 
       it "updates publication to deployed" do
-        publication = site.publication
-
         expect { subject }.to change { publication.reload.deployed_at.to_s }.to("1970-01-01 00:00:00 UTC")
       end
     end
@@ -65,15 +63,14 @@ RSpec.describe Publisher, type: :model do
       stub(:insert_instance, { "project" => "invalid" }).with_json('{ "error": { "code": 404 } }', status: 404)
     end
 
-    subject { publisher.publish }
+    let(:publication) { create(:publication) }
+
+    subject { publisher.publish(publication) }
 
     context "when project is valid" do
       let(:publisher) { Publisher.new(project: "foo", zone: "bar", instance_template: "baz") }
 
-      it "returns site name" do
-        expect(subject).to be_instance_of(String)
-        expect(subject).to include("site-")
-      end
+      it { is_expected.to be_instance_of(Google::Apis::ComputeV1::Operation) }
     end
 
     context "when project is invalid" do

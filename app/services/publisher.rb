@@ -11,8 +11,8 @@ class Publisher
     @zone = options.fetch(:zone, Rails.application.credentials.gcp.fetch(:zone))
   end
 
-  def self.publish
-    self.new.publish
+  def self.publish(publication)
+    self.new.publish(publication)
   end
 
   def self.read(data)
@@ -24,7 +24,7 @@ class Publisher
       raise Publisher::Error.new("Invalid message: #{error}")
     end
 
-    publication = Site.find_by(name: message.publication)&.publication
+    publication = Publication.find_by(name: message.publication)
     if publication.nil?
       raise Publisher::Error.new("Couldn't find publication")
     end
@@ -32,12 +32,11 @@ class Publisher
     publication.update_attribute(:deployed_at, message.timestamp)
   end
 
-  def publish
+  def publish(publication)
     service = Google::Apis::ComputeV1::ComputeService.new
     service.authorization = Google::Auth.get_application_default(SCOPES)
 
-    name = "site-#{SecureRandom.uuid}"
-    instance = Google::Apis::ComputeV1::Instance.new(name: name)
+    instance = Google::Apis::ComputeV1::Instance.new(name: publication.name)
 
     response = service.insert_instance(
       @project,
@@ -45,8 +44,6 @@ class Publisher
       instance,
       source_instance_template: source_instance_template
     )
-
-    return name
   end
 
   private

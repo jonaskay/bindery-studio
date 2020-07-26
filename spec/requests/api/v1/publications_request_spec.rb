@@ -3,8 +3,6 @@ require 'rails_helper'
 RSpec.describe "Api::V1::Publications", type: :request do
   describe "GET /api/v1/publications/:name" do
     before do
-      create(:site, publication: publication)
-
       get "/api/v1/publications/#{publication.name}"
     end
 

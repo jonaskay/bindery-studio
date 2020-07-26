@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe "Publications", type: :request do
-  describe "GET /index" do
+  describe "GET /content" do
     context "when logged in" do
       before do
         user = create(:user, :confirmed)
@@ -24,7 +24,7 @@ RSpec.describe "Publications", type: :request do
     end
   end
 
-  describe "GET /new" do
+  describe "GET /content/new" do
     context "when logged in" do
       before do
         user = create(:user, :confirmed)
@@ -47,7 +47,9 @@ RSpec.describe "Publications", type: :request do
     end
   end
 
-  describe "POST /create" do
+  describe "POST /content" do
+    subject { post "/content", params: { publication: { title: "foo", name: "foo" } } }
+
     context "when logged in" do
       before do
         user = create(:user, :confirmed)
@@ -55,7 +57,7 @@ RSpec.describe "Publications", type: :request do
       end
 
       it "redirects to /content" do
-        post "/content", params: { publication: { title: "foo" } }
+        subject
 
         expect(response).to redirect_to("/content")
       end
@@ -63,14 +65,14 @@ RSpec.describe "Publications", type: :request do
 
     context "when logged out" do
       it "redirects to /users/sign_in" do
-        post "/content", params: { publication: { title: "foo" } }
+        subject
 
         expect(response).to redirect_to("/users/sign_in")
       end
     end
   end
 
-  describe "GET /edit" do
+  describe "GET /content/:id/edit" do
     let(:user) { create(:user, :confirmed) }
     let(:other_user) { create(:user, :confirmed) }
     let(:publication) { create(:publication, user: user) }
@@ -106,7 +108,7 @@ RSpec.describe "Publications", type: :request do
     end
   end
 
-  describe "PUT /update" do
+  describe "PUT /content/:id" do
     let(:user) { create(:user, :confirmed) }
     let(:other_user) { create(:user, :confirmed) }
     let(:publication) { create(:publication, user: user) }
@@ -144,7 +146,7 @@ RSpec.describe "Publications", type: :request do
     end
   end
 
-  describe "DELETE /destroy" do
+  describe "DELETE /content/:id" do
     let(:user) { create(:user, :confirmed) }
     let(:other_user) { create(:user, :confirmed) }
     let(:publication) { create(:publication, user: user) }

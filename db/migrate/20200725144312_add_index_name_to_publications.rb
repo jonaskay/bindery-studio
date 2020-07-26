@@ -1,0 +1,5 @@
+class AddIndexNameToPublications < ActiveRecord::Migration[6.0]
+  def change
+    add_index :publications, :name, unique: true
+  end
+end

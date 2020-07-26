@@ -1,16 +1,19 @@
 class Publication < ApplicationRecord
-  scope :published, -> { where.not(published_at: nil) }
+  BASE_URL = "https://storage.googleapis.com/"
 
-  has_one :site, dependent: :destroy
+  scope :published, -> { where.not(published_at: nil) }
 
   belongs_to :user
 
-  delegate :url, to: :site
-
   validates :title, presence: true
+  validates :name, presence: true,
+                   length: { maximum: 63 },
+                   format: { with: /\A[a-z]([-a-z0-9]*[a-z0-9])?\z/ }
 
-  def name
-    site&.name
+  def url
+    return nil if bucket.nil?
+
+    "#{BASE_URL}#{bucket}/#{name}/index.html"
   end
 
   def published?
@@ -24,8 +27,8 @@ class Publication < ApplicationRecord
   def publish
     return false unless published_at.nil?
 
-    site_name = Publisher.publish
-    create_site!(name: site_name, bucket: Rails.application.credentials.gcp.fetch(:storage_bucket))
-    update_attribute(:published_at, Time.current)
+    Publisher.publish(self)
+    update!(published_at: Time.current,
+            bucket: Rails.application.credentials.gcp.fetch(:storage_bucket))
   end
 end

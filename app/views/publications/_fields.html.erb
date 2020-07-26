@@ -1,2 +1,4 @@
 <%= f.label :title %>
 <%= f.text_field :title %>
+<%= f.label :name %>
+<%= f.text_field :name, disabled: f.object.persisted? %>

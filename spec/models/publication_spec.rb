@@ -19,20 +19,80 @@ RSpec.describe Publication, type: :model do
 
       it { is_expected.to be false }
     end
-  end
 
-  describe "#name" do
-    let(:publication) { build(:publication) }
+    context "when name is blank" do
+      let(:publication) { build(:publication, name: "   ") }
 
-    subject { publication.name }
-
-    context "when site is not nil" do
-      before { create(:site, publication: publication) }
-
-      it { is_expected.to eq("name") }
+      it { is_expected.to be false }
     end
 
-    context "when site is nil" do
+    context "when name is 63 characters long" do
+      let(:publication) { build(:publication, name: "a" * 63) }
+
+      it { is_expected.to be true }
+    end
+
+    context "when name is longer than 63 characters" do
+      let(:publication) { build(:publication, name: "a" * 64) }
+
+      it { is_expected.to be false }
+    end
+
+    context "when name contains uppercase letters" do
+      let(:publication) { build(:publication, name: "fooBarBaz") }
+
+      it { is_expected.to be false }
+    end
+
+    context "when name contains digits" do
+      let(:publication) { build(:publication, name: "f00b4rb4z") }
+
+      it { is_expected.to be true }
+    end
+
+    context "when name contains dashes" do
+      let(:publication) { build(:publication, name: "foo-bar-baz") }
+
+      it { is_expected.to be true }
+    end
+
+    context "when name contains underscores" do
+      let(:publication) { build(:publication, name: "foo_bar_baz") }
+
+      it { is_expected.to be false }
+    end
+
+    context "when name contains whitespace characters" do
+      let(:publication) { build(:publication, name: "foo bar baz") }
+
+      it { is_expected.to be false }
+    end
+
+    context "when name starts with a non-letter character" do
+      let(:publication) { build(:publication, name: "42-foo-bar-baz") }
+
+      it { is_expected.to be false }
+    end
+
+    context "when name ends with a dash" do
+      let(:publication) { build(:publication, name: "foo-bar-baz-") }
+
+      it { is_expected.to be false }
+    end
+  end
+
+  describe "#url" do
+    subject { publication.url }
+
+    context "when bucket is not nil" do
+      let(:publication) { build(:publication, name: "foo", bucket: "bar") }
+
+      it { is_expected.to eq("https://storage.googleapis.com/bar/foo/index.html") }
+    end
+
+    context "when bucket is nil" do
+      let(:publication) { build(:publication, name: "foo") }
+
       it { is_expected.to be_nil }
     end
   end
@@ -87,15 +147,12 @@ RSpec.describe Publication, type: :model do
 
       it { is_expected.to be true }
 
-      it "creates a site" do
-        expect { subject }.to change { Site.count }.by(1)
+      it "updates bucket" do
+        expect { subject }.to change { publication.reload.bucket }
       end
 
       it "updates published_at" do
-        subject
-        publication.reload
-
-        expect(publication.published_at).not_to be_nil
+        expect { subject }.to change { publication.reload.published_at }
       end
 
       it "calls publisher" do
@@ -110,17 +167,12 @@ RSpec.describe Publication, type: :model do
 
       it { is_expected.to be false }
 
-      it "doesn't create a site" do
-        expect { subject }.not_to change { Site.count }
+      it "doesn't update bucket" do
+        expect { subject }.not_to change { publication.reload.bucket }
       end
 
       it "doesn't update published_at" do
-        published_at = publication.published_at
-
-        subject
-        publication.reload
-
-        expect(publication.published_at.to_s).to eq(published_at.to_s)
+        expect { subject }.not_to change { publication.reload.published_at }
       end
 
       it "doesn't call publisher" do
@@ -128,18 +180,6 @@ RSpec.describe Publication, type: :model do
 
         subject
       end
-    end
-  end
-
-  context "when publication is destroyed" do
-    let(:publication) { create(:publication) }
-
-    before { create(:site, publication: publication) }
-
-    subject { publication.destroy }
-
-    it "destroys any sites" do
-      expect { subject }.to change { Site.count }.by(-1)
     end
   end
 end

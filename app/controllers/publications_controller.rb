@@ -42,7 +42,7 @@ class PublicationsController < ApplicationController
   private
 
   def publication_params
-    params.require(:publication).permit(:title)
+    params.require(:publication).permit(:title, :name)
   end
 
   def find_publication
