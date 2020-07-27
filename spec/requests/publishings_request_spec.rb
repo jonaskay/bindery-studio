@@ -29,7 +29,7 @@ RSpec.describe "Publishings", type: :request do
       end
 
       context "when publication is published" do
-        let(:publication) { create(:publication, user: user, published_at: Time.current) }
+        let(:publication) { create(:publication, :published, user: user) }
 
         it "redirects to /content/:id/edit with alert" do
           post "/content/#{publication.id}/publish"

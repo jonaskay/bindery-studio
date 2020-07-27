@@ -79,6 +79,38 @@ RSpec.describe Publication, type: :model do
 
       it { is_expected.to be false }
     end
+
+    context "when published_at is nil" do
+      let(:publication) { build(:publication, bucket: bucket) }
+
+      context "when bucket is not blank" do
+        let(:bucket) { "foo" }
+
+        it { is_expected.to be true }
+      end
+
+      context "when bucket is blank" do
+        let(:bucket) { "   " }
+
+        it { is_expected.to be true }
+      end
+    end
+
+    context "when published_at is not nil" do
+      let(:publication) { build(:publication, published_at: Time.current, bucket: bucket) }
+
+      context "when bucket is not blank" do
+        let(:bucket) { "foo" }
+
+        it { is_expected.to be true }
+      end
+
+      context "when bucket is blank" do
+        let(:bucket) { "   " }
+
+        it { is_expected.to be false }
+      end
+    end
   end
 
   describe "#url" do
@@ -101,13 +133,13 @@ RSpec.describe Publication, type: :model do
     subject { publication.published? }
 
     context "when published_at is not nil" do
-      let(:publication) { create(:publication, published_at: Time.now) }
+      let(:publication) { create(:publication, :published) }
 
       it { is_expected.to be true }
     end
 
     context "when published_at is nil" do
-      let(:publication) { create(:publication, published_at: nil) }
+      let(:publication) { create(:publication) }
 
       it { is_expected.to be false }
     end
@@ -117,19 +149,19 @@ RSpec.describe Publication, type: :model do
     subject { publication.deployed? }
 
     context "when deployed_at and published_at are not nil" do
-      let(:publication) { create(:publication, published_at: Time.now, deployed_at: Time.now) }
+      let(:publication) { create(:publication, :published, deployed_at: Time.current) }
 
       it { is_expected.to be true }
     end
 
     context "when published_at is nil" do
-      let(:publication) { create(:publication, published_at: nil, deployed_at: Time.now) }
+      let(:publication) { create(:publication, deployed_at: Time.current) }
 
       it { is_expected.to be false }
     end
 
     context "when deployed_at is nil" do
-      let(:publication) { create(:publication, published_at: Time.now, deployed_at: nil) }
+      let(:publication) { create(:publication, :published, deployed_at: nil) }
 
       it { is_expected.to be false }
     end
@@ -163,7 +195,7 @@ RSpec.describe Publication, type: :model do
     end
 
     context "when published_at is not nil" do
-      let(:publication) { create(:publication, published_at: Time.current) }
+      let(:publication) { create(:publication, :published) }
 
       it { is_expected.to be false }
 

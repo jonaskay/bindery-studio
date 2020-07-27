@@ -11,6 +11,7 @@ class Publication < ApplicationRecord
   validates :name, presence: true,
                    length: { maximum: 63 },
                    format: { with: /\A[a-z]([-a-z0-9]*[a-z0-9])?\z/ }
+  validates :bucket, presence: true, if: -> { published?}
 
   def url
     return nil if bucket.nil?
