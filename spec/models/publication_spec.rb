@@ -182,4 +182,14 @@ RSpec.describe Publication, type: :model do
       end
     end
   end
+
+  context "when publication is updated" do
+    let(:publication) { create(:publication, title: "foo", name: "foo") }
+
+    subject { publication.update(title: "bar", name: "bar") }
+
+    it "prevents name updates" do
+      expect { subject }.not_to change { publication.reload.name }
+    end
+  end
 end

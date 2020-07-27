@@ -5,6 +5,8 @@ class Publication < ApplicationRecord
 
   belongs_to :user
 
+  attr_readonly :name
+
   validates :title, presence: true
   validates :name, presence: true,
                    length: { maximum: 63 },
