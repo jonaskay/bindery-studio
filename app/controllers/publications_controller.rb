@@ -12,7 +12,7 @@ class PublicationsController < ApplicationController
   def create
     @publication = current_user.publications.build(publication_params)
     if @publication.save
-      redirect_to publications_url, notice: "Content created!"
+      redirect_to edit_publication_url(@publication), notice: "Content created!"
     else
       flash.now[:alert] = "Oops! Could not create content."
       render :new
@@ -26,7 +26,7 @@ class PublicationsController < ApplicationController
   def update
     @publication = find_publication
     if @publication.update(publication_params)
-      redirect_to edit_publication_url, notice: "Content updated!"
+      redirect_to edit_publication_url(@publication), notice: "Content updated!"
     else
       flash.now[:alert] = "Oops! Could not update content."
       render :edit
@@ -46,6 +46,6 @@ class PublicationsController < ApplicationController
   end
 
   def find_publication
-    current_user.publications.find(params[:id])
+    current_user.publications.find_by!(name: params[:name])
   end
 end

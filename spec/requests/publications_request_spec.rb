@@ -2,6 +2,8 @@ require 'rails_helper'
 
 RSpec.describe "Publications", type: :request do
   describe "GET /content" do
+    subject { get "/content" }
+
     context "when logged in" do
       before do
         user = create(:user, :confirmed)
@@ -9,7 +11,7 @@ RSpec.describe "Publications", type: :request do
       end
 
       it "returns http success" do
-        get "/content"
+        subject
 
         expect(response).to have_http_status(:success)
       end
@@ -17,7 +19,7 @@ RSpec.describe "Publications", type: :request do
 
     context "when logged out" do
       it "redirects to /users/sign_in" do
-        get "/content"
+        subject
 
         expect(response).to redirect_to("/users/sign_in")
       end
@@ -25,6 +27,8 @@ RSpec.describe "Publications", type: :request do
   end
 
   describe "GET /content/new" do
+    subject { get "/content/new" }
+
     context "when logged in" do
       before do
         user = create(:user, :confirmed)
@@ -32,7 +36,7 @@ RSpec.describe "Publications", type: :request do
       end
 
       it "returns http success" do
-        get "/content/new"
+        subject
 
         expect(response).to have_http_status(:success)
       end
@@ -40,7 +44,7 @@ RSpec.describe "Publications", type: :request do
 
     context "when logged out" do
       it "redirects to /users/sign_in" do
-        get "/content/new"
+        subject
 
         expect(response).to redirect_to("/users/sign_in")
       end
@@ -56,10 +60,10 @@ RSpec.describe "Publications", type: :request do
         sign_in user
       end
 
-      it "redirects to /content" do
+      it "redirects to /content/:name/edit" do
         subject
 
-        expect(response).to redirect_to("/content")
+        expect(response).to redirect_to("/content/foo/edit")
       end
     end
 
@@ -72,10 +76,12 @@ RSpec.describe "Publications", type: :request do
     end
   end
 
-  describe "GET /content/:id/edit" do
+  describe "GET /content/:name/edit" do
     let(:user) { create(:user, :confirmed) }
     let(:other_user) { create(:user, :confirmed) }
     let(:publication) { create(:publication, user: user) }
+
+    subject { get "/content/#{publication.name}/edit" }
 
     context "when logged in as valid user" do
       before do
@@ -83,7 +89,7 @@ RSpec.describe "Publications", type: :request do
       end
 
       it "returns http success" do
-        get "/content/#{publication.id}/edit"
+        subject
 
         expect(response).to have_http_status(:success)
       end
@@ -95,33 +101,35 @@ RSpec.describe "Publications", type: :request do
       end
 
       it "raises a routing error" do
-        expect { get "/content/#{publication.id}/edit" }.to raise_error(ActionController::RoutingError)
+        expect { subject }.to raise_error(ActionController::RoutingError)
       end
     end
 
     context "when logged out" do
       it "redirects to /users/sign_in" do
-        get "/content/#{publication.id}/edit"
+        subject
 
         expect(response).to redirect_to("/users/sign_in")
       end
     end
   end
 
-  describe "PUT /content/:id" do
+  describe "PUT /content/:name" do
     let(:user) { create(:user, :confirmed) }
     let(:other_user) { create(:user, :confirmed) }
     let(:publication) { create(:publication, user: user) }
+
+    subject { put "/content/#{publication.name}", params: { publication: { title: "foo" } } }
 
     context "when logged in as valid user" do
       before do
         sign_in user
       end
 
-      it "redirects to /content/:id/edit" do
-        put "/content/#{publication.id}", params: { publication: { title: "foo" } }
+      it "redirects to /content/:name/edit" do
+        subject
 
-        expect(response).to redirect_to("/content/#{publication.id}/edit")
+        expect(response).to redirect_to("/content/#{publication.name}/edit")
       end
     end
 
@@ -131,25 +139,25 @@ RSpec.describe "Publications", type: :request do
       end
 
       it "raises a routing error" do
-        expect {
-          put "/content/#{publication.id}", params: { publication: { title: "foo" } }
-        }.to raise_error(ActionController::RoutingError)
+        expect { subject }.to raise_error(ActionController::RoutingError)
       end
     end
 
     context "when logged out" do
       it "redirects to /users/sign_in" do
-        put "/content/#{publication.id}", params: { publication: { title: "foo" } }
+        subject
 
         expect(response).to redirect_to("/users/sign_in")
       end
     end
   end
 
-  describe "DELETE /content/:id" do
+  describe "DELETE /content/:name" do
     let(:user) { create(:user, :confirmed) }
     let(:other_user) { create(:user, :confirmed) }
     let(:publication) { create(:publication, user: user) }
+
+    subject { delete "/content/#{publication.name}" }
 
     context "when logged in as valid user" do
       before do
@@ -157,7 +165,7 @@ RSpec.describe "Publications", type: :request do
       end
 
       it "redirects to /content" do
-        delete "/content/#{publication.id}"
+        subject
 
         expect(response).to redirect_to("/content")
       end
@@ -169,15 +177,13 @@ RSpec.describe "Publications", type: :request do
       end
 
       it "raises a routing error" do
-        expect {
-          delete "/content/#{publication.id}"
-        }.to raise_error(ActionController::RoutingError)
+        expect { subject }.to raise_error(ActionController::RoutingError)
       end
     end
 
     context "when logged out" do
       it "redirects to /users/sign_in" do
-        delete "/content/#{publication.id}"
+        subject
 
         expect(response).to redirect_to("/users/sign_in")
       end

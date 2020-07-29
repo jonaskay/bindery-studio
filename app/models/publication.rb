@@ -15,6 +15,10 @@ class Publication < ApplicationRecord
 
   before_destroy :unpublish, if: -> { published? }
 
+  def to_param
+    name
+  end
+
   def url
     return nil if bucket.nil?
 

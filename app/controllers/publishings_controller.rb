@@ -14,6 +14,6 @@ class PublishingsController < ApplicationController
   private
 
   def find_publication
-    current_user.publications.find(params[:publication_id])
+    current_user.publications.find_by!(name: params[:publication_name])
   end
 end

@@ -5,7 +5,7 @@ RSpec.describe "Content publishing", type: :system do
   include Googleapis
 
   let(:user) { create(:user, :confirmed) }
-  let(:publication) { create(:publication, user: user, title: "My Publication") }
+  let!(:publication) { create(:publication, user: user, title: "My Publication", name: "my-publication") }
 
   before do
     handle_oauth_request
@@ -19,7 +19,7 @@ RSpec.describe "Content publishing", type: :system do
   end
 
   it "enables user to publish content" do
-    visit "/content/#{publication.id}/edit"
+    visit "/content/my-publication/edit"
 
     click_link "Publish"
 
@@ -29,7 +29,7 @@ RSpec.describe "Content publishing", type: :system do
 
     publication.update_attribute(:deployed_at, Time.current)
 
-    visit "/content/#{publication.id}/edit"
+    visit "/content/my-publication/edit"
 
     expect(page).to have_link("Visit site")
   end
