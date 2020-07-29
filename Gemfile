@@ -31,11 +31,8 @@ gem 'bootsnap', '>= 1.4.2', require: false
 # Run tasks on App Engine
 gem 'appengine'
 
-# Connect to the Compute Engine API
+# Connect to the Google Cloud APIs
 gem 'google-api-client', '~> 0.34'
-
-# Connect to the Google Cloud Storage API
-gem 'google-cloud-storage'
 
 # Verify Google ID tokens
 gem 'google-id-token'

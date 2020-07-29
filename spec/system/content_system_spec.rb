@@ -88,13 +88,6 @@ RSpec.describe "Content management", type: :system, js: true do
     before do
       handle_oauth_request
 
-      stub(:storage, :get_bucket).with_json(
-        {
-          id: "my-bucket",
-          name: "my-bucket"
-        }.to_json
-      )
-
       stub(:storage, :list_objects).with_json(
         {
           items: [

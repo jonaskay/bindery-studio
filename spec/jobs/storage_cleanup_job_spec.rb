@@ -7,13 +7,7 @@ RSpec.describe StorageCleanupJob, type: :job do
   describe "#perform" do
     before do
       handle_oauth_request
-      stub(:storage, :get_bucket, params: { "bucket" => "42" })
-        .with_json(
-          {
-            id: "42",
-            name: "42"
-          }.to_json
-        )
+
       stub(:storage, :list_objects, params: { "bucket" => "42", "prefix" => "foo" })
         .with_json(
           {

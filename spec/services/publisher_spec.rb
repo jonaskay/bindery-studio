@@ -4,6 +4,42 @@ require 'support/googleapis'
 RSpec.describe Publisher, type: :model do
   include Googleapis
 
+  describe ".publish" do
+    before do
+      handle_oauth_request
+
+      stub(:compute, :insert_instance, params: {
+        "project" => "foo",
+        "zone" => "bar",
+        "template" => "baz"
+      }).with_json('{ "id": "42" }')
+
+      stub(:compute, :insert_instance, params: {
+        "project" => "invalid",
+        "zone" => "bar",
+        "template" => "baz"
+      }).with_json('{ "error": { "code": 404 } }', status: 404)
+    end
+
+    let(:publication) { create(:publication) }
+
+    subject { described_class.publish(publication, project: project, zone: "bar", template: "baz") }
+
+    context "when project is valid" do
+      let(:project) { "foo" }
+
+      it { is_expected.to be_instance_of(Google::Apis::ComputeV1::Operation) }
+    end
+
+    context "when project is invalid" do
+      let(:project) { "invalid" }
+
+      it "raises an error" do
+        expect { subject }.to raise_error(Google::Apis::ClientError)
+      end
+    end
+  end
+
   describe ".unpublish" do
     let(:publication) { create(:publication, name: "foo", bucket: "bar") }
 
@@ -66,42 +102,6 @@ RSpec.describe Publisher, type: :model do
 
       it "raises an error" do
         expect { subject }.to raise_error(Publisher::Error, "Couldn't find publication")
-      end
-    end
-  end
-
-  describe "#publish" do
-    before do
-      handle_oauth_request
-
-      stub(:compute, :insert_instance, params: {
-        "project" => "foo",
-        "zone" => "bar",
-        "template" => "baz"
-      }).with_json('{ "id": "42" }')
-
-      stub(:compute, :insert_instance, params: {
-        "project" => "invalid",
-        "zone" => "bar",
-        "template" => "baz"
-      }).with_json('{ "error": { "code": 404 } }', status: 404)
-    end
-
-    let(:publication) { create(:publication) }
-
-    subject { publisher.publish(publication) }
-
-    context "when project is valid" do
-      let(:publisher) { Publisher.new(project: "foo", zone: "bar", template: "baz") }
-
-      it { is_expected.to be_instance_of(Google::Apis::ComputeV1::Operation) }
-    end
-
-    context "when project is invalid" do
-      let(:publisher) { Publisher.new(project: "invalid", zone: "bar", template: "baz") }
-
-      it "raises an error" do
-        expect { subject }.to raise_error(Google::Apis::ClientError)
       end
     end
   end

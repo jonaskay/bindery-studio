@@ -5,19 +5,16 @@ require 'google/apis/storage_v1'
 class Publisher
   class Error < StandardError; end
 
-  def initialize(options = {})
-    @project = options.fetch(:project, ENV["COMPUTE_PROJECT"] || Rails.application.credentials.gcp.fetch(:project))
-    @zone = options.fetch(:zone, ENV["COMPUTE_ZONE"] || Rails.application.credentials.gcp.fetch(:zone))
-    @template = options.fetch(:template, ENV["COMPUTE_INSTANCE_TEMPLATE"] || Rails.application.credentials.gcp.fetch(:instance_template))
+  def initialize(publication)
+    @publication = publication
   end
 
-  def self.publish(publication)
-    self.new.publish(publication)
+  def self.publish(publication, options = {})
+    self.new(publication).publish(**options)
   end
-
 
   def self.unpublish(publication)
-    StorageCleanupJob.perform_later(publication.bucket, publication.name)
+    self.new(publication).unpublish
   end
 
   def self.read(data)
@@ -37,17 +34,24 @@ class Publisher
     publication.update_attribute(:deployed_at, message.timestamp)
   end
 
-  def publish(publication)
+  def publish(options = {})
+    project = options.fetch(:project, ENV["COMPUTE_PROJECT"] || Rails.application.credentials.gcp.fetch(:project))
+    zone = options.fetch(:zone, ENV["COMPUTE_ZONE"] || Rails.application.credentials.gcp.fetch(:zone))
+    template = options.fetch(:template, ENV["COMPUTE_INSTANCE_TEMPLATE"] || Rails.application.credentials.gcp.fetch(:instance_template))
+
     service = Google::Apis::ComputeV1::ComputeService.new
     service.authorization = Google::Auth.get_application_default(["https://www.googleapis.com/auth/compute"])
-
-    instance = Google::Apis::ComputeV1::Instance.new(name: publication.name)
+    instance = Google::Apis::ComputeV1::Instance.new(name: @publication.name)
 
     response = service.insert_instance(
-      @project,
-      @zone,
+      project,
+      zone,
       instance,
-      source_instance_template: "global/instanceTemplates/#{@template}"
+      source_instance_template: "global/instanceTemplates/#{template}"
     )
+  end
+
+  def unpublish
+    StorageCleanupJob.perform_later(@publication.bucket, @publication.name)
   end
 end
