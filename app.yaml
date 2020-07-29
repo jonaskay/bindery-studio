@@ -1,4 +1,4 @@
 runtime: ruby25
-entrypoint: bundle exec foreman
+entrypoint: bundle exec foreman start
 env_variables:
   RAILS_ENV: production
