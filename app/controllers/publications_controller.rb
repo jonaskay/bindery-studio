@@ -36,7 +36,7 @@ class PublicationsController < ApplicationController
   def destroy
     @publication = find_publication
     @publication.destroy
-    redirect_to publications_url, notice: "Content deleted."
+    redirect_to publications_url, notice: "Content is being deleted. It will take a few minutes before all the published resources are deleted."
   end
 
   private

@@ -13,6 +13,8 @@ class Publication < ApplicationRecord
                    format: { with: /\A[a-z]([-a-z0-9]*[a-z0-9])?\z/ }
   validates :bucket, presence: true, if: -> { published?}
 
+  before_destroy :unpublish, if: -> { published? }
+
   def url
     return nil if bucket.nil?
 
@@ -33,5 +35,9 @@ class Publication < ApplicationRecord
     Publisher.publish(self)
     update!(published_at: Time.current,
             bucket: Rails.application.credentials.gcp.fetch(:storage_bucket))
+  end
+
+  def unpublish
+    Publisher.unpublish(self)
   end
 end

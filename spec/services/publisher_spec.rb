@@ -4,6 +4,20 @@ require 'support/googleapis'
 RSpec.describe Publisher, type: :model do
   include Googleapis
 
+  describe ".unpublish" do
+    let(:publication) { create(:publication, name: "foo", bucket: "bar") }
+
+    subject { described_class.unpublish(publication) }
+
+    it "calls StorageCleanupJob" do
+      storage_cleanup_job = class_double("StorageCleanupJob").as_stubbed_const
+
+      expect(storage_cleanup_job).to receive(:perform_later).with("bar", "foo")
+
+      subject
+    end
+  end
+
   describe ".read" do
     let(:publication) { create(:publication, name: "foo") }
 
@@ -59,8 +73,10 @@ RSpec.describe Publisher, type: :model do
   describe "#publish" do
     before do
       handle_oauth_request
-      stub(:insert_instance, { "project" => "foo" }).with_json('{ "id": "42" }')
-      stub(:insert_instance, { "project" => "invalid" }).with_json('{ "error": { "code": 404 } }', status: 404)
+      stub(:compute, :insert_instance, params: { "project" => "foo" })
+        .with_json('{ "id": "42" }')
+      stub(:compute, :insert_instance, params: { "project" => "invalid" })
+        .with_json('{ "error": { "code": 404 } }', status: 404)
     end
 
     let(:publication) { create(:publication) }
@@ -68,13 +84,13 @@ RSpec.describe Publisher, type: :model do
     subject { publisher.publish(publication) }
 
     context "when project is valid" do
-      let(:publisher) { Publisher.new(project: "foo", zone: "bar", instance_template: "baz") }
+      let(:publisher) { Publisher.new(project: "foo", zone: "bar") }
 
       it { is_expected.to be_instance_of(Google::Apis::ComputeV1::Operation) }
     end
 
     context "when project is invalid" do
-      let(:publisher) { Publisher.new(project: "invalid", zone: "bar", instance_template: "baz") }
+      let(:publisher) { Publisher.new(project: "invalid", zone: "bar") }
 
       it "raises an error" do
         expect { subject }.to raise_error(Google::Apis::ClientError)

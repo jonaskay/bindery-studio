@@ -224,4 +224,30 @@ RSpec.describe Publication, type: :model do
       expect { subject }.not_to change { publication.reload.name }
     end
   end
+
+  context "when publication is destroyed" do
+    let(:publisher) { class_double("Publisher").as_stubbed_const }
+
+    subject { publication.destroy }
+
+    context "when publication is not published" do
+      let(:publication) { create(:publication) }
+
+      it "doesn't unpublish the deployed site" do
+        expect(publisher).not_to receive(:unpublish)
+
+        subject
+      end
+    end
+
+    context "when publication is published" do
+      let(:publication) { create(:publication, :published) }
+
+      it "unpublishes the deployed site" do
+        expect(publisher).to receive(:unpublish).with(publication)
+
+        subject
+      end
+    end
+  end
 end

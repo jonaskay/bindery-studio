@@ -1,10 +1,13 @@
 require "rails_helper"
+require "support/googleapis"
 
 RSpec.describe "Content management", type: :system, js: true do
+  include Googleapis
+
   let(:user) { create(:user, :confirmed) }
 
   before do
-    create(:publication, user: user, title: "My Publication")
+    create(:publication, user: user, title: "My Publication", name: "my-publication")
     create(:publication, title: "Other Publication")
     sign_in user
   end
@@ -60,12 +63,6 @@ RSpec.describe "Content management", type: :system, js: true do
 
       expect(page).to have_field("Content ID", disabled: true)
 
-      fill_in "Title", with: "   "
-      click_button "Update"
-
-      expect(page).to have_text("Oops! Could not update content.")
-      expect(page).to have_text("Title can't be blank")
-
       fill_in "Title", with: "Updated Title"
       click_button "Update"
 
@@ -76,12 +73,50 @@ RSpec.describe "Content management", type: :system, js: true do
       expect(page).to have_link("Updated Title")
     end
 
+    it "prevents user from editing a content piece with invalid data" do
+      click_link "My Publication"
+
+      fill_in "Title", with: "   "
+      click_button "Update"
+
+      expect(page).to have_text("Oops! Could not update content.")
+      expect(page).to have_text("Title can't be blank")
+    end
+  end
+
+  context "when deleting content" do
+    before do
+      handle_oauth_request
+
+      stub(:storage, :get_bucket).with_json(
+        {
+          id: "my-bucket",
+          name: "my-bucket"
+        }.to_json
+      )
+
+      stub(:storage, :list_objects).with_json(
+        {
+          items: [
+            {
+              bucket: "my-bucket",
+              name: "my-publication"
+            }
+          ]
+        }.to_json
+      )
+
+      stub(:storage, :delete_object).with_status(204)
+    end
+
     it "enables user to delete a content piece" do
+      visit "/content"
+
       click_link "My Publication"
 
       accept_confirm { click_link "Delete" }
 
-      expect(page).to have_text("Content deleted.")
+      expect(page).to have_text("Content is being deleted. It will take a few minutes before all the published resources are deleted.")
       expect(page).to have_current_path("/content")
       expect(page).not_to have_link("My Publication")
     end

@@ -6,7 +6,7 @@ RSpec.describe "Publishings", type: :request do
 
   before do
     handle_oauth_request
-    stub(:insert_instance).with_json('{ "id": "42" }')
+    stub(:compute, :insert_instance).with_json('{ "id": "42" }')
   end
 
   describe "POST /content/:publication_id/publish" do

@@ -1,5 +1,6 @@
 require 'googleauth'
 require 'google/apis/compute_v1'
+require 'google/apis/storage_v1'
 
 class Publisher
   class Error < StandardError; end
@@ -13,6 +14,11 @@ class Publisher
 
   def self.publish(publication)
     self.new.publish(publication)
+  end
+
+
+  def self.unpublish(publication)
+    StorageCleanupJob.perform_later(publication.bucket, publication.name)
   end
 
   def self.read(data)
@@ -34,7 +40,7 @@ class Publisher
 
   def publish(publication)
     service = Google::Apis::ComputeV1::ComputeService.new
-    service.authorization = Google::Auth.get_application_default(SCOPES)
+    service.authorization = Google::Auth.get_application_default(["https://www.googleapis.com/auth/compute"])
 
     instance = Google::Apis::ComputeV1::Instance.new(name: publication.name)
 

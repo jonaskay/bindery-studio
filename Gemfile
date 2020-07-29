@@ -34,15 +34,24 @@ gem 'appengine'
 # Connect to the Compute Engine API
 gem 'google-api-client', '~> 0.34'
 
+# Connect to the Google Cloud Storage API
+gem 'google-cloud-storage'
+
 # Verify Google ID tokens
 gem 'google-id-token'
 
 # Handle authentication with Devise
 gem 'devise'
 
-
 # Serialize JSON responses
 gem 'fast_jsonapi'
+
+# Use a queuing backend for Active Job
+gem 'delayed_job_active_record'
+gem 'daemons'
+
+# Deploy application using Foreman
+gem 'foreman'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
