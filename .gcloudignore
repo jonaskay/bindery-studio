@@ -1,6 +1,7 @@
 .gcloudignore
 .git
 .gitignore
+/vendor/bundle
 /.bundle
 /log/*
 /tmp/*
