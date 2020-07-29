@@ -5,11 +5,10 @@ require 'google/apis/storage_v1'
 class Publisher
   class Error < StandardError; end
 
-  SCOPES = ["https://www.googleapis.com/auth/compute"]
-
   def initialize(options = {})
-    @project = options.fetch(:project, Rails.application.credentials.gcp.fetch(:project))
-    @zone = options.fetch(:zone, Rails.application.credentials.gcp.fetch(:zone))
+    @project = options.fetch(:project, ENV["COMPUTE_PROJECT"] || Rails.application.credentials.gcp.fetch(:project))
+    @zone = options.fetch(:zone, ENV["COMPUTE_ZONE"] || Rails.application.credentials.gcp.fetch(:zone))
+    @template = options.fetch(:template, ENV["COMPUTE_INSTANCE_TEMPLATE"] || Rails.application.credentials.gcp.fetch(:instance_template))
   end
 
   def self.publish(publication)
@@ -48,15 +47,7 @@ class Publisher
       @project,
       @zone,
       instance,
-      source_instance_template: source_instance_template
+      source_instance_template: "global/instanceTemplates/#{@template}"
     )
-  end
-
-  private
-
-  def source_instance_template
-    instance_template = Rails.application.credentials.gcp.fetch(:instance_template)
-
-    "global/instanceTemplates/#{instance_template}"
   end
 end

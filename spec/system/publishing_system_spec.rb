@@ -9,7 +9,11 @@ RSpec.describe "Content publishing", type: :system do
 
   before do
     handle_oauth_request
-    stub(:compute, :insert_instance).with_json('{ "id": "42" }')
+    stub(:compute, :insert_instance, params: {
+      "project" => "my-project",
+      "zone" => "my-zone",
+      "template" => "my-instance-template"
+    }).with_json('{ "id": "42" }')
 
     sign_in user
   end

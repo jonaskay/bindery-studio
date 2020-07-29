@@ -73,10 +73,18 @@ RSpec.describe Publisher, type: :model do
   describe "#publish" do
     before do
       handle_oauth_request
-      stub(:compute, :insert_instance, params: { "project" => "foo" })
-        .with_json('{ "id": "42" }')
-      stub(:compute, :insert_instance, params: { "project" => "invalid" })
-        .with_json('{ "error": { "code": 404 } }', status: 404)
+
+      stub(:compute, :insert_instance, params: {
+        "project" => "foo",
+        "zone" => "bar",
+        "template" => "baz"
+      }).with_json('{ "id": "42" }')
+
+      stub(:compute, :insert_instance, params: {
+        "project" => "invalid",
+        "zone" => "bar",
+        "template" => "baz"
+      }).with_json('{ "error": { "code": 404 } }', status: 404)
     end
 
     let(:publication) { create(:publication) }
@@ -84,13 +92,13 @@ RSpec.describe Publisher, type: :model do
     subject { publisher.publish(publication) }
 
     context "when project is valid" do
-      let(:publisher) { Publisher.new(project: "foo", zone: "bar") }
+      let(:publisher) { Publisher.new(project: "foo", zone: "bar", template: "baz") }
 
       it { is_expected.to be_instance_of(Google::Apis::ComputeV1::Operation) }
     end
 
     context "when project is invalid" do
-      let(:publisher) { Publisher.new(project: "invalid", zone: "bar") }
+      let(:publisher) { Publisher.new(project: "invalid", zone: "bar", template: "baz") }
 
       it "raises an error" do
         expect { subject }.to raise_error(Google::Apis::ClientError)
