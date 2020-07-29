@@ -16,6 +16,8 @@ RSpec.configure do |config|
   config.before(:each, type: :system, js: true) do
     if ENV['SELENIUM_HOST'].nil?
       Capybara.server_host = "localhost"
+      Capybara.server_port = 3001
+      Capybara.app_host = "http://localhost:3001"
 
       driven_by :selenium_chrome_headless
     else
