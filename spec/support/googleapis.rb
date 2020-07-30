@@ -45,6 +45,10 @@ module Googleapis
           :get,
           "https://storage.googleapis.com/storage/v1/b/{bucket}"
         ],
+        delete_bucket: [
+          :delete,
+          "https://storage.googleapis.com/storage/v1/b/{bucket}"
+        ],
         list_objects: [
           :get,
           "https://storage.googleapis.com/storage/v1/b/{bucket}/o?prefix={prefix}"

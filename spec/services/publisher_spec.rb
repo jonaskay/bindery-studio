@@ -41,16 +41,26 @@ RSpec.describe Publisher, type: :model do
   end
 
   describe ".unpublish" do
-    let(:publication) { create(:publication, name: "foo", bucket: "bar") }
+    before do
+      handle_oauth_request
+
+      stub(:storage, :delete_bucket, params: { "bucket" => "bar" }).with_status(204)
+    end
 
     subject { described_class.unpublish(publication) }
 
-    it "calls StorageCleanupJob" do
-      storage_cleanup_job = class_double("StorageCleanupJob").as_stubbed_const
+    context "when bucket is not nil" do
+      let(:publication) { create(:publication, name: "foo", bucket: "bar") }
 
-      expect(storage_cleanup_job).to receive(:perform_later).with("bar", "foo")
+      it { is_expected.to eq "" }
+    end
 
-      subject
+    context "when bucket is nil" do
+      let(:publication) { create(:publication, name: "foo") }
+
+      it "raises an error" do
+        expect { subject }.to raise_error(Publisher::Error, "Invalid publication: Bucket can't be blank")
+      end
     end
   end
 

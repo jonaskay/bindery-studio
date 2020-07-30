@@ -43,7 +43,7 @@ class Publisher
     service.authorization = Google::Auth.get_application_default(["https://www.googleapis.com/auth/compute"])
     instance = Google::Apis::ComputeV1::Instance.new(name: @publication.name)
 
-    response = service.insert_instance(
+    service.insert_instance(
       project,
       zone,
       instance,
@@ -52,6 +52,13 @@ class Publisher
   end
 
   def unpublish
-    StorageCleanupJob.perform_later(@publication.bucket, @publication.name)
+    if @publication.bucket.blank?
+      raise Publisher::Error.new("Invalid publication: Bucket can't be blank")
+    end
+
+    service = Google::Apis::StorageV1::StorageService.new
+    service.authorization = Google::Auth.get_application_default(["https://www.googleapis.com/auth/devstorage.read_write"])
+
+    service.delete_bucket(@publication.bucket)
   end
 end
