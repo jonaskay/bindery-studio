@@ -52,13 +52,9 @@ class Publisher
   end
 
   def unpublish
-    if @publication.bucket.blank?
-      raise Publisher::Error.new("Invalid publication: Bucket can't be blank")
-    end
-
     service = Google::Apis::StorageV1::StorageService.new
     service.authorization = Google::Auth.get_application_default(["https://www.googleapis.com/auth/devstorage.read_write"])
 
-    service.delete_bucket(@publication.bucket)
+    service.delete_bucket(@publication.name)
   end
 end

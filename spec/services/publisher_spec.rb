@@ -44,24 +44,14 @@ RSpec.describe Publisher, type: :model do
     before do
       handle_oauth_request
 
-      stub(:storage, :delete_bucket, params: { "bucket" => "bar" }).with_status(204)
+      stub(:storage, :delete_bucket, params: { "bucket" => "foo" }).with_status(204)
     end
+
+    let(:publication) { create(:publication, name: "foo") }
 
     subject { described_class.unpublish(publication) }
 
-    context "when bucket is not nil" do
-      let(:publication) { create(:publication, name: "foo", bucket: "bar") }
-
-      it { is_expected.to eq "" }
-    end
-
-    context "when bucket is nil" do
-      let(:publication) { create(:publication, name: "foo") }
-
-      it "raises an error" do
-        expect { subject }.to raise_error(Publisher::Error, "Invalid publication: Bucket can't be blank")
-      end
-    end
+    it { is_expected.to eq "" }
   end
 
   describe ".read" do
