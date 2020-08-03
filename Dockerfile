@@ -22,5 +22,6 @@ RUN chmod +x /usr/bin/docker-entrypoint.sh
 ENTRYPOINT ["docker-entrypoint.sh"]
 EXPOSE 3000
 ENV PORT=3000
+ENV HOST=0.0.0.0
 
 CMD ["bundle", "exec", "foreman", "start"]
