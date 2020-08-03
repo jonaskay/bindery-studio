@@ -12,3 +12,4 @@
 /yarn-error.log
 yarn-debug.log*
 .yarn-integrity
+service-account-*.json
