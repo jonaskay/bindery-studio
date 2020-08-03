@@ -21,7 +21,7 @@ Rails.application.routes.draw do
 
   namespace :api, constraints: { format: 'json' } do
     namespace :v1 do
-      resources :publications, only: :show, param: :name
+      resources :publications, only: :show
     end
   end
 end

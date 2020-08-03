@@ -1,51 +1,53 @@
 require 'rails_helper'
 
 RSpec.describe "Api::V1::Publications", type: :request do
-  describe "GET /api/v1/publications/:name" do
-    before do
-      get "/api/v1/publications/#{publication.name}"
-    end
+  describe "GET /api/v1/publications/:id" do
+    before { get "/api/v1/publications/#{publication.id}" }
 
-    context "when publication is published" do
-      let(:publication) { create(:publication, :published) }
+    describe "response" do
+      subject { response }
 
-      it "returns http success" do
-        expect(response).to have_http_status(:success)
-      end
+      context "when publication is published" do
+        let(:publication) { create(:publication, :published) }
 
-      it "returns a publication object" do
-        expect(response.body).to eq(
-          {
-            data: {
-              id: publication.id.to_s,
-              type: "publication",
-              attributes: {
-                title: "title"
+        it { is_expected.to have_http_status(:success) }
+
+        describe "body" do
+          subject { response.body }
+
+          it { is_expected.to eq(
+            {
+              data: {
+                id: publication.id.to_s,
+                type: "publication",
+                attributes: {
+                  title: "title"
+                }
               }
-            }
-          }.to_json
-        )
-      end
-    end
-
-    context "when publication is not published" do
-      let(:publication) { create(:publication) }
-
-      it "returns http not found" do
-        expect(response).to have_http_status(:not_found)
+            }.to_json
+          ) }
+        end
       end
 
-      it "returns an error object" do
-        expect(response.body).to eq(
-          {
-            errors: [
-              {
-                status: "404",
-                title: "Not Found"
-              }
-            ]
-          }.to_json
-        )
+      context "when publication is not published" do
+        let(:publication) { create(:publication) }
+
+        it { is_expected.to have_http_status(:not_found) }
+
+        describe "body" do
+          subject { response.body }
+
+          it { is_expected.to eq(
+            {
+              errors: [
+                {
+                  status: "404",
+                  title: "Not Found"
+                }
+              ]
+            }.to_json
+          ) }
+        end
       end
     end
   end

@@ -1,6 +1,8 @@
 class Publication < ApplicationRecord
   include Discard::Model
 
+  self.implicit_order_column = "created_at"
+
   scope :published, -> { kept.where.not(published_at: nil) }
 
   belongs_to :user

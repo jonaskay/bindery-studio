@@ -1,16 +1,16 @@
 require "rails_helper"
 
-RSpec.shared_context "valid message", shared_context: :metadata do
+RSpec.shared_context "valid message" do
   let(:message) {
     {
-      publicationId: 42,
+      publicationId: "13371337-1337-1337-1337-133713371337",
       status: "success",
       timestamp: "1970-01-01T00:00:00.000Z"
     }
   }
 end
 
-RSpec.shared_context "invalid message", shared_context: :metadata do
+RSpec.shared_context "invalid message" do
   let(:message) {
     {
       publicationId: "invalid",
@@ -27,10 +27,10 @@ RSpec.describe Subscriber, type: :model do
     subject { described_class.read_from_publish(message_data) }
 
     context "when message is valid" do
-      include_context "valid message", include_shared: true
+      include_context "valid message"
 
       context "when publication exists" do
-        let!(:publication) { create(:publication, :published, id: 42) }
+        let!(:publication) { create(:publication, :published, id: "13371337-1337-1337-1337-133713371337") }
 
         it "updates publication to deployed" do
           expect { subject }.to change { publication.reload.deployed? }.to(true)
@@ -45,7 +45,7 @@ RSpec.describe Subscriber, type: :model do
     end
 
     context "when message is invalid" do
-      include_context "invalid message", include_shared: true
+      include_context "invalid message"
 
       it "raises an error" do
         expect { subject }.to raise_error(ActiveModel::ValidationError)
@@ -57,10 +57,10 @@ RSpec.describe Subscriber, type: :model do
     subject { described_class.read_from_unpublish(message_data) }
 
     context "when message is valid" do
-      include_context "valid message", include_shared: true
+      include_context "valid message"
 
       context "when publication exists" do
-        let!(:publication) { create(:publication, :discarded, id: 42) }
+        let!(:publication) { create(:publication, :discarded, id: "13371337-1337-1337-1337-133713371337") }
 
         it "deletes publication" do
           expect { subject }.to change { Publication.count }.by(-1)
@@ -75,7 +75,7 @@ RSpec.describe Subscriber, type: :model do
     end
 
     context "when message is invalid" do
-      include_context "invalid message", include_shared: true
+      include_context "invalid message"
 
       it "raises an error" do
         expect { subject }.to raise_error(ActiveModel::ValidationError)
