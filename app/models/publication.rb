@@ -1,7 +1,7 @@
 class Publication < ApplicationRecord
-  BASE_URL = "https://storage.googleapis.com/"
+  include Discard::Model
 
-  scope :published, -> { where.not(published_at: nil) }
+  scope :published, -> { kept.where.not(published_at: nil) }
 
   belongs_to :user
 
@@ -11,22 +11,23 @@ class Publication < ApplicationRecord
   validates :name, presence: true,
                    length: { maximum: 63 },
                    format: { with: /\A[a-z]([-a-z0-9]*[a-z0-9])?\z/ }
-  validates :bucket, presence: true, if: -> { published?}
 
-  before_destroy :unpublish, if: -> { published? }
+  after_discard :unpublish, if: -> { published? }
 
   def to_param
     name
   end
 
   def url
-    return nil if bucket.nil?
-
-    "#{BASE_URL}#{bucket}/#{name}/index.html"
+    "#{ENV["BASE_URL"]}#{name}/index.html"
   end
 
   def published?
     !published_at.nil?
+  end
+
+  def unpublished?
+    !published?
   end
 
   def deployed?
@@ -34,14 +35,24 @@ class Publication < ApplicationRecord
   end
 
   def publish
-    return false unless published_at.nil?
+    return false if published? || discarded?
 
     Publisher.publish(self)
-    update!(published_at: Time.current,
-            bucket: Rails.application.credentials.gcp.fetch(:storage_bucket))
+    update!(published_at: Time.current)
   end
 
   def unpublish
     Publisher.unpublish(self)
+    update!(published_at: nil)
+  end
+
+  def confirm_deployment(timestamp)
+    update_attribute(:deployed_at, timestamp)
+  end
+
+  def confirm_cleanup
+    return false if undiscarded?
+
+    destroy
   end
 end

@@ -10,7 +10,7 @@ RSpec.describe "Publishings", type: :request do
     stub(:compute, :insert_instance, params: {
       "project" => "my-project",
       "zone" => "my-zone",
-      "template" => "my-instance-template"
+      "template" => "my-publish-template"
     }).with_json('{ "id": "42" }')
   end
 

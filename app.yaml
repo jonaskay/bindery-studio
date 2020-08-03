@@ -2,4 +2,8 @@ runtime: ruby25
 entrypoint: bundle exec foreman start
 instance_class: F2
 env_variables:
+  COMPUTE_ENGINE_PUBLISH_TEMPLATE: publish-v1
+  COMPUTE_ENGINE_UNPUBLISH_TEMPLATE: unpublish-v1
+  COMPUTE_ENGINE_ZONE: europe-west1-b
+  GOOGLE_CLOUD_PROJECT_ID: august-strata-281417
   RAILS_ENV: production

@@ -2,7 +2,7 @@ class PublicationsController < ApplicationController
   before_action :authenticate_user!
 
   def index
-    @publications = current_user.publications
+    @publications = current_user.publications.kept
   end
 
   def new
@@ -35,7 +35,7 @@ class PublicationsController < ApplicationController
 
   def destroy
     @publication = find_publication
-    @publication.destroy
+    @publication.discard
     redirect_to publications_url, notice: "Content is being deleted. It will take a few minutes before all the published resources are deleted."
   end
 
@@ -46,6 +46,6 @@ class PublicationsController < ApplicationController
   end
 
   def find_publication
-    current_user.publications.find_by!(name: params[:name])
+    current_user.publications.kept.find_by!(name: params[:name])
   end
 end

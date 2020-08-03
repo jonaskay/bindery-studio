@@ -6,7 +6,10 @@ FactoryBot.define do
 
     trait :published do
       published_at { Time.current }
-      bucket { "bucket" }
+    end
+
+    trait :discarded do
+      discarded_at { Time.current }
     end
   end
 end

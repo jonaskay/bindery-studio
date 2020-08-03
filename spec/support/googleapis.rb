@@ -40,24 +40,6 @@ module Googleapis
           "https://compute.googleapis.com/compute/v1/projects/{project}/zones/{zone}/instances?sourceInstanceTemplate=global/instanceTemplates/{template}"
         ],
       },
-      storage: {
-        get_bucket: [
-          :get,
-          "https://storage.googleapis.com/storage/v1/b/{bucket}"
-        ],
-        delete_bucket: [
-          :delete,
-          "https://storage.googleapis.com/storage/v1/b/{bucket}"
-        ],
-        list_objects: [
-          :get,
-          "https://storage.googleapis.com/storage/v1/b/{bucket}/o?prefix={prefix}"
-        ],
-        delete_object: [
-          :delete,
-          "https://storage.googleapis.com/storage/v1/b/{bucket}/o/{object}"
-        ]
-      },
       oauth: [
         :post,
         "https://www.googleapis.com/oauth2/v4/token"

@@ -11,7 +11,12 @@ Rails.application.routes.draw do
   end
 
   namespace :pubsub do
-    resources :messages, only: :create
+    namespace :publish do
+      post "/", to: "messages#create"
+    end
+    namespace :unpublish do
+      post "/", to: "messages#create"
+    end
   end
 
   namespace :api, constraints: { format: 'json' } do

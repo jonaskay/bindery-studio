@@ -88,18 +88,11 @@ RSpec.describe "Content management", type: :system, js: true do
     before do
       handle_oauth_request
 
-      stub(:storage, :list_objects).with_json(
-        {
-          items: [
-            {
-              bucket: "my-bucket",
-              name: "my-publication"
-            }
-          ]
-        }.to_json
-      )
-
-      stub(:storage, :delete_object).with_status(204)
+      stub(:compute, :insert_instance, params: {
+        "project" => "my-project",
+        "zone" => "my-zone",
+        "template" => "my-unpublish-template"
+      }).with_json('{ "id": "42" }')
     end
 
     it "enables user to delete a content piece" do

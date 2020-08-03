@@ -1,60 +1,62 @@
 require 'googleauth'
 require 'google/apis/compute_v1'
-require 'google/apis/storage_v1'
 
 class Publisher
   class Error < StandardError; end
 
-  def initialize(publication)
-    @publication = publication
-  end
+  PUBLISH = :publish
+  UNPUBLISH = :unpublish
 
-  def self.publish(publication, options = {})
-    self.new(publication).publish(**options)
+  attr_reader :publication, :service, :template, :project, :zone
+
+  def self.publish(publication)
+    template = ENV["COMPUTE_ENGINE_PUBLISH_TEMPLATE"]
+
+    self.new(publication, PUBLISH).insert_instance
   end
 
   def self.unpublish(publication)
-    self.new(publication).unpublish
+    template = ENV["COMPUTE_ENGINE_UNPUBLISH_TEMPLATE"]
+
+    self.new(publication, UNPUBLISH).insert_instance
   end
 
-  def self.read(data)
-    payload = JSON.parse(Base64.decode64(data))
-    message = Message.new(payload)
+  def initialize(publication, template)
+    @publication = publication
+    @template = template
+    @service = Google::Apis::ComputeV1::ComputeService.new
 
-    unless message.valid?
-      error = message.errors.full_messages.first
-      raise Publisher::Error.new("Invalid message: #{error}")
-    end
+    @project = ENV["GOOGLE_CLOUD_PROJECT_ID"]
+    @zone = ENV["COMPUTE_ENGINE_ZONE"]
 
-    publication = Publication.find_by(name: message.publication)
-    if publication.nil?
-      raise Publisher::Error.new("Couldn't find publication")
-    end
-
-    publication.update_attribute(:deployed_at, message.timestamp)
+    authenticate_service
   end
 
-  def publish(options = {})
-    project = options.fetch(:project, ENV["COMPUTE_PROJECT"] || Rails.application.credentials.gcp.fetch(:project))
-    zone = options.fetch(:zone, ENV["COMPUTE_ZONE"] || Rails.application.credentials.gcp.fetch(:zone))
-    template = options.fetch(:template, ENV["COMPUTE_INSTANCE_TEMPLATE"] || Rails.application.credentials.gcp.fetch(:instance_template))
-
-    service = Google::Apis::ComputeV1::ComputeService.new
-    service.authorization = Google::Auth.get_application_default(["https://www.googleapis.com/auth/compute"])
-    instance = Google::Apis::ComputeV1::Instance.new(name: @publication.name)
+  def insert_instance
+    instance_name = "#{template}-#{publication.id}"
+    instance = Google::Apis::ComputeV1::Instance.new(name: instance_name)
 
     service.insert_instance(
       project,
       zone,
       instance,
-      source_instance_template: "global/instanceTemplates/#{template}"
+      source_instance_template: source_instance_template
     )
   end
 
-  def unpublish
-    service = Google::Apis::StorageV1::StorageService.new
-    service.authorization = Google::Auth.get_application_default(["https://www.googleapis.com/auth/devstorage.read_write"])
+  private
 
-    service.delete_bucket(@publication.name)
+  def source_instance_template
+    instance_templates = {
+      publish: ENV["COMPUTE_ENGINE_PUBLISH_TEMPLATE"],
+      unpublish: ENV["COMPUTE_ENGINE_UNPUBLISH_TEMPLATE"]
+    }
+
+    "global/instanceTemplates/#{instance_templates[template]}"
+  end
+
+  def authenticate_service
+    scopes = ["https://www.googleapis.com/auth/compute"]
+    service.authorization = Google::Auth.get_application_default(scopes)
   end
 end

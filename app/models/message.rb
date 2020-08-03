@@ -3,14 +3,20 @@ class Message
 
   SUCCESS = "success"
 
-  attr_reader :publication, :status, :timestamp
+  attr_reader :publication_id, :status, :timestamp
 
-  validates :publication, presence: true
+  validates :publication_id, presence: true
   validates :status, inclusion: { in: [SUCCESS] }
   validates :timestamp, presence: true,  datetime: true
 
+  def self.from_encoded(data)
+    decoded = JSON.parse(Base64.decode64(data))
+
+    Message.new(decoded)
+  end
+
   def initialize(payload)
-    @publication = payload["publication"]
+    @publication_id = payload["publicationId"]
     @status = payload["status"]
     @timestamp = payload["timestamp"]
   end

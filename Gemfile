@@ -43,12 +43,11 @@ gem 'devise'
 # Serialize JSON responses
 gem 'fast_jsonapi'
 
-# Use a queuing backend for Active Job
-gem 'delayed_job_active_record'
-gem 'daemons'
-
 # Deploy application using Foreman
 gem 'foreman'
+
+# Use Discard to soft delete publications
+gem 'discard', '~> 1.2'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console

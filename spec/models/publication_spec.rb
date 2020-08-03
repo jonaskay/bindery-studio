@@ -1,5 +1,19 @@
 require 'rails_helper'
 
+RSpec.shared_examples "failed publish" do
+  it { is_expected.to be false }
+
+  it "doesn't update published_at" do
+    expect { subject }.not_to change { publication.reload.published_at }
+  end
+
+  it "doesn't call Publisher.publish" do
+    expect(publisher).not_to receive(:publish)
+
+    subject
+  end
+end
+
 RSpec.describe Publication, type: :model do
   describe "#valid?" do
     let(:publication) { build(:publication) }
@@ -79,67 +93,47 @@ RSpec.describe Publication, type: :model do
 
       it { is_expected.to be false }
     end
-
-    context "when published_at is nil" do
-      let(:publication) { build(:publication, bucket: bucket) }
-
-      context "when bucket is not blank" do
-        let(:bucket) { "foo" }
-
-        it { is_expected.to be true }
-      end
-
-      context "when bucket is blank" do
-        let(:bucket) { "   " }
-
-        it { is_expected.to be true }
-      end
-    end
-
-    context "when published_at is not nil" do
-      let(:publication) { build(:publication, published_at: Time.current, bucket: bucket) }
-
-      context "when bucket is not blank" do
-        let(:bucket) { "foo" }
-
-        it { is_expected.to be true }
-      end
-
-      context "when bucket is blank" do
-        let(:bucket) { "   " }
-
-        it { is_expected.to be false }
-      end
-    end
   end
 
   describe "#url" do
+    let(:publication) { build(:publication, name: "foo") }
+
     subject { publication.url }
 
-    context "when bucket is not nil" do
-      let(:publication) { build(:publication, name: "foo", bucket: "bar") }
-
-      it { is_expected.to eq("https://storage.googleapis.com/bar/foo/index.html") }
-    end
-
-    context "when bucket is nil" do
-      let(:publication) { build(:publication, name: "foo") }
-
-      it { is_expected.to be_nil }
-    end
+    it { is_expected.to eq("http://www.example.com/foo/index.html") }
   end
 
   describe "#published?" do
     subject { publication.published? }
 
-    context "when published_at is not nil" do
-      let(:publication) { create(:publication, :published) }
+    context "when discarded is false and published_at is not nil" do
+      let(:publication) { create(:publication, published_at: Time.current) }
 
       it { is_expected.to be true }
     end
 
+    context "when discarded is true" do
+      let(:publication) { create(:publication, :discarded, published_at: Time.current) }
+    end
+
     context "when published_at is nil" do
-      let(:publication) { create(:publication) }
+      let(:publication) { create(:publication, published_at: nil) }
+
+      it { is_expected.to be false }
+    end
+  end
+
+  describe "#unpublished?" do
+    subject { publication.unpublished? }
+
+    context "when published is true" do
+      let(:publication) { create(:publication, :published) }
+
+      it { is_expected.to be false }
+    end
+
+    context "when published is false" do
+      let(:publication) { create(:publication, :published) }
 
       it { is_expected.to be false }
     end
@@ -148,13 +142,13 @@ RSpec.describe Publication, type: :model do
   describe "#deployed?" do
     subject { publication.deployed? }
 
-    context "when deployed_at and published_at are not nil" do
+    context "when published is true and deployed_at is not nil" do
       let(:publication) { create(:publication, :published, deployed_at: Time.current) }
 
       it { is_expected.to be true }
     end
 
-    context "when published_at is nil" do
+    context "when published is false" do
       let(:publication) { create(:publication, deployed_at: Time.current) }
 
       it { is_expected.to be false }
@@ -174,14 +168,10 @@ RSpec.describe Publication, type: :model do
 
     subject { publication.publish }
 
-    context "when published_at is nil" do
+    context "when published_at is nil and discarded is false" do
       let(:publication) { create(:publication) }
 
       it { is_expected.to be true }
-
-      it "updates bucket" do
-        expect { subject }.to change { publication.reload.bucket }
-      end
 
       it "updates published_at" do
         expect { subject }.to change { publication.reload.published_at }
@@ -194,23 +184,68 @@ RSpec.describe Publication, type: :model do
       end
     end
 
+    context "when discarded is true" do
+      let(:publication) { create(:publication, :discarded) }
+
+      include_examples "failed publish"
+    end
+
     context "when published_at is not nil" do
       let(:publication) { create(:publication, :published) }
 
+      include_examples "failed publish"
+    end
+  end
+
+  describe "#unpublish" do
+    let(:publisher) { class_double(Publisher).as_stubbed_const }
+    let(:publication) { create(:publication, :published) }
+
+    subject { publication.unpublish }
+
+    before { allow(publisher).to receive(:unpublish).with(publication) }
+
+    it "calls Publisher.unpublish" do
+      expect(publisher).to receive(:unpublish).with(publication)
+
+      subject
+    end
+
+    it "updates publication to unpublished" do
+      expect { subject }.to change { publication.reload.unpublished? }
+    end
+  end
+
+  describe "#confirm_deployment" do
+    let(:publication) { create(:publication) }
+
+    subject { publication.confirm_deployment(DateTime.parse("1970-01-01T00:00:00.000Z")) }
+
+    it "updateds publication to deployed" do
+      expect { subject }.to change { publication.reload.deployed_at.to_s }.to("1970-01-01 00:00:00 UTC")
+    end
+  end
+
+  describe "#confirm_cleanup" do
+    subject { publication.confirm_cleanup }
+
+    context "when discarded is true" do
+      let!(:publication) { create(:publication, :discarded) }
+
+      it { is_expected.to be_a(Publication) }
+
+      it "deletes publication" do
+        expect { subject }.to change { Publication.count }.by(-1)
+      end
+    end
+
+    context "when discarded is false" do
+      let!(:publication) { create(:publication) }
+
       it { is_expected.to be false }
 
-      it "doesn't update bucket" do
-        expect { subject }.not_to change { publication.reload.bucket }
-      end
-
-      it "doesn't update published_at" do
-        expect { subject }.not_to change { publication.reload.published_at }
-      end
-
-      it "doesn't call publisher" do
-        expect(publisher).not_to receive(:publish)
-
-        subject
+      it "doesn't delete publication" do
+        expect { subject }.not_to change { Publication.count }
       end
     end
   end
@@ -225,10 +260,10 @@ RSpec.describe Publication, type: :model do
     end
   end
 
-  context "when publication is destroyed" do
+  context "when publication is discarded" do
     let(:publisher) { class_double("Publisher").as_stubbed_const }
 
-    subject { publication.destroy }
+    subject { publication.discard }
 
     context "when publication is not published" do
       let(:publication) { create(:publication) }
