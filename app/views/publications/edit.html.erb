@@ -4,6 +4,7 @@
   <%= render 'fields', f: f %>
   <%= f.submit "Update" %>
 <% end %>
+<%= content_tag :div, @publication.id %>
 <% if @publication.published? %>
   <% if @publication.deployed? %>
     <%= link_to "Visit site", @publication.url %>
