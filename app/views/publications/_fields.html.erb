@@ -1,4 +1,11 @@
 <%= f.label :title %>
 <%= f.text_field :title %>
 <%= f.label :name %>
-<%= f.text_field :name, disabled: f.object.persisted? %>
+<%= f.text_field :name, maxlength: Publication::MAX_NAME_LENGTH, disabled: f.object.persisted? %>
+<% unless f.object.persisted? %>
+  <ul>
+    <%= content_tag :li, "Must be #{Publication::MIN_NAME_LENGTH}-#{Publication::MAX_NAME_LENGTH} characters long" %>
+    <li>Must contain only lower-case letters (a-z), digits (0-9), and dashes (-)</li>
+    <li>First and last character cannot be a dash</li>
+  </ul>
+<% end %>

@@ -82,14 +82,26 @@ RSpec.describe Publication, type: :model do
       it { is_expected.to be false }
     end
 
-    context "when name starts with a non-letter character" do
-      let(:publication) { build(:publication, name: "42-foo-bar-baz") }
+    context "when name starts with a letter" do
+      let(:publication) { build(:publication, name: "foo") }
+
+      it { is_expected.to be true }
+    end
+
+    context "when name starts with a number" do
+      let(:publication) { build(:publication, name: "1337") }
+
+      it { is_expected.to be true }
+    end
+
+    context "when name starts with a dash" do
+      let(:publication) { build(:publication, name: "-foo") }
 
       it { is_expected.to be false }
     end
 
     context "when name ends with a dash" do
-      let(:publication) { build(:publication, name: "foo-bar-baz-") }
+      let(:publication) { build(:publication, name: "foo-") }
 
       it { is_expected.to be false }
     end

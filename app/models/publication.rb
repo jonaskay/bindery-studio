@@ -3,6 +3,9 @@ class Publication < ApplicationRecord
 
   self.implicit_order_column = "created_at"
 
+  MIN_NAME_LENGTH = 1
+  MAX_NAME_LENGTH = 63
+
   scope :published, -> { kept.where.not(published_at: nil) }
 
   belongs_to :user
@@ -11,8 +14,8 @@ class Publication < ApplicationRecord
 
   validates :title, presence: true
   validates :name, presence: true,
-                   length: { maximum: 63 },
-                   format: { with: /\A[a-z]([-a-z0-9]*[a-z0-9])?\z/ }
+                   length: { maximum: MAX_NAME_LENGTH },
+                   format: { with: /\A[a-z0-9]([-a-z0-9]*[a-z0-9])?\z/ }
 
   after_discard :unpublish, if: -> { published? }
 
