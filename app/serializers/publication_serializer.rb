@@ -1,5 +1,5 @@
 class PublicationSerializer
   include FastJsonapi::ObjectSerializer
 
-  attributes :title
+  attributes :name, :title
 end

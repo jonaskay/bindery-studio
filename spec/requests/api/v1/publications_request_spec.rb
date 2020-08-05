@@ -8,7 +8,7 @@ RSpec.describe "Api::V1::Publications", type: :request do
       subject { response }
 
       context "when publication is published" do
-        let(:publication) { create(:publication, :published) }
+        let(:publication) { create(:publication, :published, name: "foo", title: "bar") }
 
         it { is_expected.to have_http_status(:success) }
 
@@ -21,7 +21,8 @@ RSpec.describe "Api::V1::Publications", type: :request do
                 id: publication.id.to_s,
                 type: "publication",
                 attributes: {
-                  title: "title"
+                  name: "foo",
+                  title: "bar"
                 }
               }
             }.to_json
