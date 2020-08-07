@@ -47,7 +47,7 @@ class Publication < ApplicationRecord
   end
 
   def unpublish
-    Publisher.unpublish(self)
+    Cleaner.clean(self)
     update!(published_at: nil)
   end
 

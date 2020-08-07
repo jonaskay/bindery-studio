@@ -3,7 +3,10 @@ require "rails_helper"
 RSpec.shared_context "valid message" do
   let(:message) {
     {
-      publicationId: "13371337-1337-1337-1337-133713371337",
+      project: {
+        id: "13371337-1337-1337-1337-133713371337",
+        name: "foo"
+      },
       status: "success",
       timestamp: "1970-01-01T00:00:00.000Z"
     }
@@ -13,7 +16,10 @@ end
 RSpec.shared_context "invalid message" do
   let(:message) {
     {
-      publicationId: "invalid",
+      project: {
+        id: "invalid",
+        name: "invalid"
+      },
       status: "invalid",
       timestamp: "invalid"
     }
@@ -23,8 +29,8 @@ end
 RSpec.describe Subscriber, type: :model do
   let(:message_data) { Base64.encode64(message.to_json) }
 
-  describe ".read_from_publish" do
-    subject { described_class.read_from_publish(message_data) }
+  describe ".read_from_deploy" do
+    subject { described_class.read_from_deploy(message_data) }
 
     context "when message is valid" do
       include_context "valid message"
@@ -53,8 +59,8 @@ RSpec.describe Subscriber, type: :model do
     end
   end
 
-  describe ".read_from_unpublish" do
-    subject { described_class.read_from_unpublish(message_data) }
+  describe ".read_from_cleanup" do
+    subject { described_class.read_from_cleanup(message_data) }
 
     context "when message is valid" do
       include_context "valid message"

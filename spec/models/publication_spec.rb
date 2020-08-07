@@ -7,10 +7,42 @@ RSpec.shared_examples "failed publish" do
     expect { subject }.not_to change { publication.reload.published_at }
   end
 
-  it "doesn't call Publisher.publish" do
+  it "doesn't call publisher" do
     expect(publisher).not_to receive(:publish)
 
     subject
+  end
+end
+
+RSpec.shared_examples "successful unpublish" do
+  let(:cleaner) { class_double(Cleaner).as_stubbed_const }
+
+  before { allow(cleaner).to receive(:clean).with(publication) }
+
+  it "calls cleaner" do
+    expect(cleaner).to receive(:clean).with(publication)
+
+    subject
+  end
+
+  it "updates publication to unpublished" do
+    expect { subject }.to change { publication.reload.unpublished? }
+  end
+end
+
+RSpec.shared_examples "failed unpublish" do
+  let(:cleaner) { class_double(Cleaner).as_stubbed_const }
+
+  before { allow(cleaner).to receive(:clean).with(publication) }
+
+  it "doesn't call cleaner" do
+    expect(cleaner).not_to receive(:clean)
+
+    subject
+  end
+
+  it "doesn't update publication to unpublished" do
+    expect { subject }.not_to change { publication.reload.unpublished? }
   end
 end
 
@@ -210,22 +242,11 @@ RSpec.describe Publication, type: :model do
   end
 
   describe "#unpublish" do
-    let(:publisher) { class_double(Publisher).as_stubbed_const }
     let(:publication) { create(:publication, :published) }
 
     subject { publication.unpublish }
 
-    before { allow(publisher).to receive(:unpublish).with(publication) }
-
-    it "calls Publisher.unpublish" do
-      expect(publisher).to receive(:unpublish).with(publication)
-
-      subject
-    end
-
-    it "updates publication to unpublished" do
-      expect { subject }.to change { publication.reload.unpublished? }
-    end
+    include_examples "successful unpublish"
   end
 
   describe "#confirm_deployment" do
@@ -273,28 +294,18 @@ RSpec.describe Publication, type: :model do
   end
 
   context "when publication is discarded" do
-    let(:publisher) { class_double("Publisher").as_stubbed_const }
-
     subject { publication.discard }
-
-    context "when publication is not published" do
-      let(:publication) { create(:publication) }
-
-      it "doesn't unpublish the deployed site" do
-        expect(publisher).not_to receive(:unpublish)
-
-        subject
-      end
-    end
 
     context "when publication is published" do
       let(:publication) { create(:publication, :published) }
 
-      it "unpublishes the deployed site" do
-        expect(publisher).to receive(:unpublish).with(publication)
+      include_examples "successful unpublish"
+    end
 
-        subject
-      end
+    context "when publication is not published" do
+      let(:publication) { create(:publication) }
+
+      include_examples "failed unpublish"
     end
   end
 end

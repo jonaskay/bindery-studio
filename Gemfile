@@ -34,6 +34,9 @@ gem 'appengine'
 # Connect to the Google Cloud APIs
 gem 'google-api-client', '~> 0.34'
 
+# Send messages to Pub/Sub
+gem 'google-cloud-pubsub', '~> 2.0'
+
 # Verify Google ID tokens
 gem 'google-id-token'
 

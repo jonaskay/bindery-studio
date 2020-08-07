@@ -15,19 +15,13 @@ class Publisher
     self.new(publication, PUBLISH).insert_instance
   end
 
-  def self.unpublish(publication)
-    template = ENV["COMPUTE_ENGINE_UNPUBLISH_TEMPLATE"]
-
-    self.new(publication, UNPUBLISH).insert_instance
-  end
-
   def initialize(publication, template)
     @publication = publication
     @template = template
     @service = Google::Apis::ComputeV1::ComputeService.new
 
-    @project = ENV["GOOGLE_CLOUD_PROJECT_ID"]
-    @zone = ENV["COMPUTE_ENGINE_ZONE"]
+    @project = ENV.fetch("GOOGLE_CLOUD_PROJECT")
+    @zone = ENV.fetch("COMPUTE_ENGINE_ZONE")
 
     authenticate_service
   end

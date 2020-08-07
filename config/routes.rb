@@ -11,10 +11,10 @@ Rails.application.routes.draw do
   end
 
   namespace :pubsub do
-    namespace :publish do
+    namespace :deploy do
       post "/", to: "messages#create"
     end
-    namespace :unpublish do
+    namespace :cleanup do
       post "/", to: "messages#create"
     end
   end

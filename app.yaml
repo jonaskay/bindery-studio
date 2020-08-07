@@ -3,8 +3,8 @@ entrypoint: bundle exec foreman start
 instance_class: F2
 env_variables:
   COMPUTE_ENGINE_PUBLISH_TEMPLATE: publish-v6
-  COMPUTE_ENGINE_UNPUBLISH_TEMPLATE: unpublish-v6
   COMPUTE_ENGINE_ZONE: europe-west1-b
   DATABASE_NAME: studio_production
-  GOOGLE_CLOUD_PROJECT_ID: august-strata-281417
+  GOOGLE_CLOUD_PROJECT: august-strata-281417
+  PUBSUB_CLEANER_TOPIC: cleaner-topic
   RAILS_ENV: production

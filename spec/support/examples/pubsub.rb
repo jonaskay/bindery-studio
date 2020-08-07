@@ -6,9 +6,14 @@ RSpec.shared_examples "pubsub message requests" do |action, path|
                                                     .and_return(false)
   end
 
+  let(:publication) { create(:publication) }
+
   let(:payload) do
     data = Base64.encode64({
-      "publicationId" => create(:publication).id,
+      "project" => {
+        "id" => publication.id,
+        "name" => publication.name
+      },
       "status" => "success",
       "timestamp" => "1970-01-01T00:00:00.000Z"
     }.to_json)

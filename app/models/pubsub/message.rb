@@ -1,22 +1,22 @@
-class Message
+class Pubsub::Message
   include ActiveModel::Validations
 
   SUCCESS = "success"
 
-  attr_reader :publication_id, :status, :timestamp
+  attr_reader :project, :status, :timestamp
 
-  validates :publication_id, presence: true
+  validates :project, presence: true
   validates :status, inclusion: { in: [SUCCESS] }
   validates :timestamp, presence: true,  datetime: true
 
   def self.from_encoded(data)
     decoded = JSON.parse(Base64.decode64(data))
 
-    Message.new(decoded)
+    new(decoded)
   end
 
   def initialize(payload)
-    @publication_id = payload["publicationId"]
+    @project = Pubsub::Project.new(payload["project"]) if payload["project"]
     @status = payload["status"]
     @timestamp = payload["timestamp"]
   end

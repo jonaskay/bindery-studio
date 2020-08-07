@@ -19,7 +19,7 @@ env:
     - COMPUTE_ENGINE_UNPUBLISH_TEMPLATE=my-unpublish-template
     - COMPUTE_ENGINE_ZONE=my-zone
     - GOOGLE_APPLICATION_CREDENTIALS=service-account-travis-ci.json
-    - GOOGLE_CLOUD_PROJECT_ID=my-project
+    - GOOGLE_CLOUD_PROJECT=my-project
 before_install:
   - openssl aes-256-cbc -K $encrypted_9f3b5599b056_key -iv $encrypted_9f3b5599b056_iv -in service-account-travis-ci.json.enc -out service-account-travis-ci.json -d
   - if [ ! -d ${HOME}/google-cloud-sdk ]; then
