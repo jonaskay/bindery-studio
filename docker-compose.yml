@@ -33,12 +33,6 @@ services:
       - /app/node_modules
     command: bin/spring server
     environment:
-      BASE_URL: http://www.example.com/
-      COMPUTE_ENGINE_PUBLISH_TEMPLATE: my-publish-template
-      COMPUTE_ENGINE_ZONE: my-zone
-      GOOGLE_APPLICATION_CREDENTIALS: service-account-local.json
-      GOOGLE_CLOUD_PROJECT: my-project
-      PUBSUB_CLEANER_TOPIC: my-cleaner-topic
       RAILS_ENV: test
       SELENIUM_HOST: selenium
       TEST_APP_HOST: test

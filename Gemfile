@@ -61,6 +61,9 @@ group :development, :test do
 
   # Use factories instead of fixtures
   gem 'factory_bot_rails'
+
+  # Use dotenv to handle environment variables
+  gem 'dotenv-rails'
 end
 
 group :development do
