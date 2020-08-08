@@ -15,7 +15,7 @@ class Publisher
     @service = Google::Apis::ComputeV1::ComputeService.new
 
     @google_cloud_project = ENV.fetch("GOOGLE_CLOUD_PROJECT")
-    @compute_engine_template = ENV.fetch("COMPUTE_ENGINE_PUBLISH_TEMPLATE")
+    @compute_engine_template = ENV.fetch("COMPUTE_ENGINE_COMPOSITOR_TEMPLATE")
     @compute_engine_zone = ENV.fetch("COMPUTE_ENGINE_ZONE")
 
     authenticate_service

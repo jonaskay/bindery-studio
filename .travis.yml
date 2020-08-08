@@ -15,8 +15,7 @@ addons:
 env:
   global:
     - BASE_URL=http://www.example.com
-    - COMPUTE_ENGINE_PUBLISH_TEMPLATE=my-publish-template
-    - COMPUTE_ENGINE_UNPUBLISH_TEMPLATE=my-unpublish-template
+    - COMPUTE_ENGINE_COMPOSITOR_TEMPLATE=my-compositor-template
     - COMPUTE_ENGINE_ZONE=my-zone
     - GOOGLE_APPLICATION_CREDENTIALS=service-account-travis-ci.json
     - GOOGLE_CLOUD_PROJECT=august-strata-281417
