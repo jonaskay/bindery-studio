@@ -1,8 +1,8 @@
 require 'rails_helper'
 
-RSpec.describe "Publications", type: :request do
-  describe "GET /content" do
-    subject { get "/content" }
+RSpec.describe "Projects", type: :request do
+  describe "GET /projects" do
+    subject { get "/projects" }
 
     context "when logged in" do
       before do
@@ -26,8 +26,8 @@ RSpec.describe "Publications", type: :request do
     end
   end
 
-  describe "GET /content/new" do
-    subject { get "/content/new" }
+  describe "GET /projects/new" do
+    subject { get "/projects/new" }
 
     context "when logged in" do
       before do
@@ -51,8 +51,8 @@ RSpec.describe "Publications", type: :request do
     end
   end
 
-  describe "POST /content" do
-    subject { post "/content", params: { publication: { title: "foo", name: "foo" } } }
+  describe "POST /projects" do
+    subject { post "/projects", params: { project: { title: "foo", name: "foo" } } }
 
     context "when logged in" do
       before do
@@ -60,10 +60,10 @@ RSpec.describe "Publications", type: :request do
         sign_in user
       end
 
-      it "redirects to /content/:name/edit" do
+      it "redirects to /projects/:name/edit" do
         subject
 
-        expect(response).to redirect_to("/content/foo/edit")
+        expect(response).to redirect_to("/projects/foo/edit")
       end
     end
 
@@ -76,12 +76,12 @@ RSpec.describe "Publications", type: :request do
     end
   end
 
-  describe "GET /content/:name/edit" do
+  describe "GET /projects/:name/edit" do
     let(:user) { create(:user, :confirmed) }
     let(:other_user) { create(:user, :confirmed) }
-    let(:publication) { create(:publication, user: user) }
+    let(:project) { create(:project, user: user) }
 
-    subject { get "/content/#{publication.name}/edit" }
+    subject { get "/projects/#{project.name}/edit" }
 
     context "when logged in as valid user" do
       before do
@@ -114,22 +114,22 @@ RSpec.describe "Publications", type: :request do
     end
   end
 
-  describe "PUT /content/:name" do
+  describe "PUT /projects/:name" do
     let(:user) { create(:user, :confirmed) }
     let(:other_user) { create(:user, :confirmed) }
-    let(:publication) { create(:publication, user: user) }
+    let(:project) { create(:project, user: user) }
 
-    subject { put "/content/#{publication.name}", params: { publication: { title: "foo" } } }
+    subject { put "/projects/#{project.name}", params: { project: { title: "foo" } } }
 
     context "when logged in as valid user" do
       before do
         sign_in user
       end
 
-      it "redirects to /content/:name/edit" do
+      it "redirects to /projects/:name/edit" do
         subject
 
-        expect(response).to redirect_to("/content/#{publication.name}/edit")
+        expect(response).to redirect_to("/projects/#{project.name}/edit")
       end
     end
 
@@ -152,22 +152,22 @@ RSpec.describe "Publications", type: :request do
     end
   end
 
-  describe "DELETE /content/:name" do
+  describe "DELETE /projects/:name" do
     let(:user) { create(:user, :confirmed) }
     let(:other_user) { create(:user, :confirmed) }
-    let(:publication) { create(:publication, user: user) }
+    let(:project) { create(:project, user: user) }
 
-    subject { delete "/content/#{publication.name}" }
+    subject { delete "/projects/#{project.name}" }
 
     context "when logged in as valid user" do
       before do
         sign_in user
       end
 
-      it "redirects to /content" do
+      it "redirects to /projects" do
         subject
 
-        expect(response).to redirect_to("/content")
+        expect(response).to redirect_to("/projects")
       end
     end
 

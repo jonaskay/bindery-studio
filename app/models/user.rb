@@ -1,7 +1,7 @@
 class User < ApplicationRecord
   self.implicit_order_column = "created_at"
 
-  has_many :publications, dependent: :destroy
+  has_many :projects, dependent: :destroy
 
   # Include default devise modules. Others available are:
   # :timeoutable, :trackable and :omniauthable

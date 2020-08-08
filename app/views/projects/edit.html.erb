@@ -1,0 +1,17 @@
+<h1><%= @project.title %></h1>
+<%= render 'shared/errors', obj: @project %>
+<%= form_with model: @project, local: true do |f| %>
+  <%= render 'fields', f: f %>
+  <%= f.submit "Update" %>
+<% end %>
+<%= content_tag :div, @project.id %>
+<% if @project.published? %>
+  <% if @project.deployed? %>
+    <%= link_to "Visit site", @project.url %>
+  <% else %>
+    <span>Publishing...</span>
+  <% end %>
+<% else %>
+  <%= link_to "Publish", project_publishings_url(@project), method: :post %>
+<% end %>
+<%= link_to "Delete", project_url(@project), method: :delete, data: { confirm: "Are you sure?" } %>

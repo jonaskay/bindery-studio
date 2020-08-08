@@ -14,32 +14,32 @@ RSpec.describe "Publishings", type: :request do
     }).with_json('{ "id": "42" }')
   end
 
-  describe "POST /content/:publication_name/publish" do
+  describe "POST /projects/:project_name/publish" do
     let(:user) { create(:user, :confirmed) }
     let(:other_user) { create(:user, :confirmed) }
-    let(:publication) { create(:publication, user: user) }
+    let(:project) { create(:project, user: user) }
 
     context "when logged in as valid user" do
       before do
         sign_in user
       end
 
-      context "when publication is unpublished" do
-        it "redirects to /content/:name/edit with notice" do
-          post "/content/#{publication.name}/publish"
+      context "when project is unpublished" do
+        it "redirects to /projects/:name/edit with notice" do
+          post "/projects/#{project.name}/publish"
 
-          expect(response).to redirect_to("/content/#{publication.name}/edit")
+          expect(response).to redirect_to("/projects/#{project.name}/edit")
           expect(flash[:notice]).not_to be_empty
         end
       end
 
-      context "when publication is published" do
-        let(:publication) { create(:publication, :published, user: user) }
+      context "when project is published" do
+        let(:project) { create(:project, :published, user: user) }
 
-        it "redirects to /content/:name/edit with alert" do
-          post "/content/#{publication.name}/publish"
+        it "redirects to /projects/:name/edit with alert" do
+          post "/projects/#{project.name}/publish"
 
-          expect(response).to redirect_to("/content/#{publication.name}/edit")
+          expect(response).to redirect_to("/projects/#{project.name}/edit")
           expect(flash[:alert]).not_to be_empty
         end
       end
@@ -52,14 +52,14 @@ RSpec.describe "Publishings", type: :request do
 
       it "raises a routing error" do
         expect {
-          post "/content/#{publication.name}/publish"
+          post "/projects/#{project.name}/publish"
         }.to raise_error(ActionController::RoutingError)
       end
     end
 
     context "when logged out" do
       it "redirects to /users/sign_in" do
-        post "/content/#{publication.name}/publish"
+        post "/projects/#{project.name}/publish"
 
         expect(response).to redirect_to("/users/sign_in")
       end

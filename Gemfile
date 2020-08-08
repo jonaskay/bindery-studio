@@ -49,7 +49,7 @@ gem 'fast_jsonapi'
 # Deploy application using Foreman
 gem 'foreman'
 
-# Use Discard to soft delete publications
+# Use Discard to soft delete projects
 gem 'discard', '~> 1.2'
 
 group :development, :test do

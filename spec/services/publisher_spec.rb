@@ -15,9 +15,9 @@ RSpec.describe Publisher, type: :model do
       }).with_json('{ "id": "42" }')
     end
 
-    let(:publication) { create(:publication, id: 1337) }
+    let(:project) { create(:project, id: 1337) }
 
-    subject { described_class.publish(publication) }
+    subject { described_class.publish(project) }
 
     it { is_expected.to be_a(Google::Apis::ComputeV1::Operation) }
   end

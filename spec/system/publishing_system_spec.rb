@@ -1,11 +1,11 @@
 require "rails_helper"
 require "support/googleapis"
 
-RSpec.describe "Content publishing", type: :system do
+RSpec.describe "Project publishing", type: :system do
   include Googleapis
 
   let(:user) { create(:user, :confirmed) }
-  let!(:publication) { create(:publication, user: user, title: "My Publication", name: "my-publication") }
+  let!(:project) { create(:project, user: user, name: "my-project") }
 
   before do
     handle_oauth_request
@@ -18,18 +18,18 @@ RSpec.describe "Content publishing", type: :system do
     sign_in user
   end
 
-  it "enables user to publish content" do
-    visit "/content/my-publication/edit"
+  it "enables user to publish project" do
+    visit "/projects/my-project/edit"
 
     click_link "Publish"
 
-    expect(page).to have_text("Content is being published. This process will take a few minutes.")
+    expect(page).to have_text("Project is being published. This process will take a few minutes.")
     expect(page).not_to have_link("Visit site")
     expect(page).not_to have_link("Publish")
 
-    publication.update_attribute(:deployed_at, Time.current)
+    project.update_attribute(:deployed_at, Time.current)
 
-    visit "/content/my-publication/edit"
+    visit "/projects/my-project/edit"
 
     expect(page).to have_link("Visit site")
   end

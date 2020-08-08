@@ -1,6 +1,6 @@
-class CreatePublications < ActiveRecord::Migration[6.0]
+class CreateProjects < ActiveRecord::Migration[6.0]
   def change
-    create_table :publications, id: :uuid, default: "gen_random_uuid()" do |t|
+    create_table :projects, id: :uuid, default: "gen_random_uuid()" do |t|
       t.references :user, type: :uuid, null: false, foreign_key: true
       t.string :name, null: false
       t.string :title
@@ -11,8 +11,8 @@ class CreatePublications < ActiveRecord::Migration[6.0]
       t.timestamps
     end
 
-    add_index :publications, :name, unique: true
-    add_index :publications, :published_at
-    add_index :publications, :discarded_at
+    add_index :projects, :name, unique: true
+    add_index :projects, :published_at
+    add_index :projects, :discarded_at
   end
 end

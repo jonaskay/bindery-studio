@@ -7,32 +7,32 @@ class Publisher
   PUBLISH = :publish
   UNPUBLISH = :unpublish
 
-  attr_reader :publication, :service, :template, :project, :zone
+  attr_reader :project, :service, :google_cloud_project, :compute_engine_template, :compute_engine_zone
 
-  def self.publish(publication)
+  def self.publish(project)
     template = ENV["COMPUTE_ENGINE_PUBLISH_TEMPLATE"]
 
-    self.new(publication, PUBLISH).insert_instance
+    self.new(project, PUBLISH).insert_instance
   end
 
-  def initialize(publication, template)
-    @publication = publication
-    @template = template
+  def initialize(project, compute_engine_template)
+    @project = project
     @service = Google::Apis::ComputeV1::ComputeService.new
 
-    @project = ENV.fetch("GOOGLE_CLOUD_PROJECT")
-    @zone = ENV.fetch("COMPUTE_ENGINE_ZONE")
+    @google_cloud_project = ENV.fetch("GOOGLE_CLOUD_PROJECT")
+    @compute_engine_template = compute_engine_template
+    @compute_engine_zone = ENV.fetch("COMPUTE_ENGINE_ZONE")
 
     authenticate_service
   end
 
   def insert_instance
-    instance_name = "#{template}-#{publication.id}"
+    instance_name = "#{compute_engine_template}-#{project.id}"
     instance = Google::Apis::ComputeV1::Instance.new(name: instance_name)
 
     service.insert_instance(
-      project,
-      zone,
+      google_cloud_project,
+      compute_engine_zone,
       instance,
       source_instance_template: source_instance_template
     )
@@ -46,7 +46,7 @@ class Publisher
       unpublish: ENV["COMPUTE_ENGINE_UNPUBLISH_TEMPLATE"]
     }
 
-    "global/instanceTemplates/#{instance_templates[template]}"
+    "global/instanceTemplates/#{instance_templates[compute_engine_template]}"
   end
 
   def authenticate_service

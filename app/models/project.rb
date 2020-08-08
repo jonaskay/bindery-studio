@@ -1,4 +1,4 @@
-class Publication < ApplicationRecord
+class Project < ApplicationRecord
   include Discard::Model
 
   self.implicit_order_column = "created_at"

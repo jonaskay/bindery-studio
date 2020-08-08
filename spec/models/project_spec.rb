@@ -1,10 +1,10 @@
-require 'rails_helper'
+require "rails_helper"
 
 RSpec.shared_examples "failed publish" do
   it { is_expected.to be false }
 
   it "doesn't update published_at" do
-    expect { subject }.not_to change { publication.reload.published_at }
+    expect { subject }.not_to change { project.reload.published_at }
   end
 
   it "doesn't call publisher" do
@@ -17,23 +17,23 @@ end
 RSpec.shared_examples "successful unpublish" do
   let(:cleaner) { class_double(Cleaner).as_stubbed_const }
 
-  before { allow(cleaner).to receive(:clean).with(publication) }
+  before { allow(cleaner).to receive(:clean).with(project) }
 
   it "calls cleaner" do
-    expect(cleaner).to receive(:clean).with(publication)
+    expect(cleaner).to receive(:clean).with(project)
 
     subject
   end
 
-  it "updates publication to unpublished" do
-    expect { subject }.to change { publication.reload.unpublished? }
+  it "updates project to unpublished" do
+    expect { subject }.to change { project.reload.unpublished? }
   end
 end
 
 RSpec.shared_examples "failed unpublish" do
   let(:cleaner) { class_double(Cleaner).as_stubbed_const }
 
-  before { allow(cleaner).to receive(:clean).with(publication) }
+  before { allow(cleaner).to receive(:clean).with(project) }
 
   it "doesn't call cleaner" do
     expect(cleaner).not_to receive(:clean)
@@ -41,173 +41,173 @@ RSpec.shared_examples "failed unpublish" do
     subject
   end
 
-  it "doesn't update publication to unpublished" do
-    expect { subject }.not_to change { publication.reload.unpublished? }
+  it "doesn't update project to unpublished" do
+    expect { subject }.not_to change { project.reload.unpublished? }
   end
 end
 
-RSpec.describe Publication, type: :model do
+RSpec.describe Project, type: :model do
   describe "#valid?" do
-    let(:publication) { build(:publication) }
+    let(:project) { build(:project) }
 
-    subject { publication.valid? }
+    subject { project.valid? }
 
     it { is_expected.to be true }
 
     context "when user is nil" do
-      let(:publication) { build(:publication, user: nil) }
+      let(:project) { build(:project, user: nil) }
 
       it { is_expected.to be false }
     end
 
     context "when title is blank" do
-      let(:publication) { build(:publication, title: "   ") }
+      let(:project) { build(:project, title: "   ") }
 
       it { is_expected.to be false }
     end
 
     context "when name is blank" do
-      let(:publication) { build(:publication, name: "   ") }
+      let(:project) { build(:project, name: "   ") }
 
       it { is_expected.to be false }
     end
 
     context "when name is taken" do
-      let(:publication) { build(:publication, name: "foo") }
+      let(:project) { build(:project, name: "foo") }
 
-      before { create(:publication, name: "foo") }
+      before { create(:project, name: "foo") }
 
       it { is_expected.to be false }
     end
 
     context "when name is 63 characters long" do
-      let(:publication) { build(:publication, name: "a" * 63) }
+      let(:project) { build(:project, name: "a" * 63) }
 
       it { is_expected.to be true }
     end
 
     context "when name is longer than 63 characters" do
-      let(:publication) { build(:publication, name: "a" * 64) }
+      let(:project) { build(:project, name: "a" * 64) }
 
       it { is_expected.to be false }
     end
 
     context "when name contains uppercase letters" do
-      let(:publication) { build(:publication, name: "fooBarBaz") }
+      let(:project) { build(:project, name: "fooBarBaz") }
 
       it { is_expected.to be false }
     end
 
     context "when name contains digits" do
-      let(:publication) { build(:publication, name: "f00b4rb4z") }
+      let(:project) { build(:project, name: "f00b4rb4z") }
 
       it { is_expected.to be true }
     end
 
     context "when name contains dashes" do
-      let(:publication) { build(:publication, name: "foo-bar-baz") }
+      let(:project) { build(:project, name: "foo-bar-baz") }
 
       it { is_expected.to be true }
     end
 
     context "when name contains underscores" do
-      let(:publication) { build(:publication, name: "foo_bar_baz") }
+      let(:project) { build(:project, name: "foo_bar_baz") }
 
       it { is_expected.to be false }
     end
 
     context "when name contains whitespace characters" do
-      let(:publication) { build(:publication, name: "foo bar baz") }
+      let(:project) { build(:project, name: "foo bar baz") }
 
       it { is_expected.to be false }
     end
 
     context "when name starts with a letter" do
-      let(:publication) { build(:publication, name: "foo") }
+      let(:project) { build(:project, name: "foo") }
 
       it { is_expected.to be true }
     end
 
     context "when name starts with a number" do
-      let(:publication) { build(:publication, name: "1337") }
+      let(:project) { build(:project, name: "1337") }
 
       it { is_expected.to be true }
     end
 
     context "when name starts with a dash" do
-      let(:publication) { build(:publication, name: "-foo") }
+      let(:project) { build(:project, name: "-foo") }
 
       it { is_expected.to be false }
     end
 
     context "when name ends with a dash" do
-      let(:publication) { build(:publication, name: "foo-") }
+      let(:project) { build(:project, name: "foo-") }
 
       it { is_expected.to be false }
     end
   end
 
   describe "#url" do
-    let(:publication) { build(:publication, name: "foo") }
+    let(:project) { build(:project, name: "foo") }
 
-    subject { publication.url }
+    subject { project.url }
 
     it { is_expected.to eq("http://www.example.com/foo/index.html") }
   end
 
   describe "#published?" do
-    subject { publication.published? }
+    subject { project.published? }
 
     context "when discarded is false and published_at is not nil" do
-      let(:publication) { create(:publication, published_at: Time.current) }
+      let(:project) { create(:project, published_at: Time.current) }
 
       it { is_expected.to be true }
     end
 
     context "when discarded is true" do
-      let(:publication) { create(:publication, :discarded, published_at: Time.current) }
+      let(:project) { create(:project, :discarded, published_at: Time.current) }
     end
 
     context "when published_at is nil" do
-      let(:publication) { create(:publication, published_at: nil) }
+      let(:project) { create(:project, published_at: nil) }
 
       it { is_expected.to be false }
     end
   end
 
   describe "#unpublished?" do
-    subject { publication.unpublished? }
+    subject { project.unpublished? }
 
     context "when published is true" do
-      let(:publication) { create(:publication, :published) }
+      let(:project) { create(:project, :published) }
 
       it { is_expected.to be false }
     end
 
     context "when published is false" do
-      let(:publication) { create(:publication, :published) }
+      let(:project) { create(:project, :published) }
 
       it { is_expected.to be false }
     end
   end
 
   describe "#deployed?" do
-    subject { publication.deployed? }
+    subject { project.deployed? }
 
     context "when published is true and deployed_at is not nil" do
-      let(:publication) { create(:publication, :published, deployed_at: Time.current) }
+      let(:project) { create(:project, :published, deployed_at: Time.current) }
 
       it { is_expected.to be true }
     end
 
     context "when published is false" do
-      let(:publication) { create(:publication, deployed_at: Time.current) }
+      let(:project) { create(:project, deployed_at: Time.current) }
 
       it { is_expected.to be false }
     end
 
     context "when deployed_at is nil" do
-      let(:publication) { create(:publication, :published, deployed_at: nil) }
+      let(:project) { create(:project, :published, deployed_at: nil) }
 
       it { is_expected.to be false }
     end
@@ -218,15 +218,15 @@ RSpec.describe Publication, type: :model do
 
     before { allow(publisher).to receive(:publish).and_return("foo") }
 
-    subject { publication.publish }
+    subject { project.publish }
 
     context "when published_at is nil and discarded is false" do
-      let(:publication) { create(:publication) }
+      let(:project) { create(:project) }
 
       it { is_expected.to be true }
 
       it "updates published_at" do
-        expect { subject }.to change { publication.reload.published_at }
+        expect { subject }.to change { project.reload.published_at }
       end
 
       it "calls publisher" do
@@ -237,81 +237,81 @@ RSpec.describe Publication, type: :model do
     end
 
     context "when discarded is true" do
-      let(:publication) { create(:publication, :discarded) }
+      let(:project) { create(:project, :discarded) }
 
       include_examples "failed publish"
     end
 
     context "when published_at is not nil" do
-      let(:publication) { create(:publication, :published) }
+      let(:project) { create(:project, :published) }
 
       include_examples "failed publish"
     end
   end
 
   describe "#unpublish" do
-    let(:publication) { create(:publication, :published) }
+    let(:project) { create(:project, :published) }
 
-    subject { publication.unpublish }
+    subject { project.unpublish }
 
     include_examples "successful unpublish"
   end
 
   describe "#confirm_deployment" do
-    let(:publication) { create(:publication) }
+    let(:project) { create(:project) }
 
-    subject { publication.confirm_deployment(DateTime.parse("1970-01-01T00:00:00.000Z")) }
+    subject { project.confirm_deployment(DateTime.parse("1970-01-01T00:00:00.000Z")) }
 
-    it "updateds publication to deployed" do
-      expect { subject }.to change { publication.reload.deployed_at.to_s }.to("1970-01-01 00:00:00 UTC")
+    it "updateds project to deployed" do
+      expect { subject }.to change { project.reload.deployed_at.to_s }.to("1970-01-01 00:00:00 UTC")
     end
   end
 
   describe "#confirm_cleanup" do
-    subject { publication.confirm_cleanup }
+    subject { project.confirm_cleanup }
 
     context "when discarded is true" do
-      let!(:publication) { create(:publication, :discarded) }
+      let!(:project) { create(:project, :discarded) }
 
-      it { is_expected.to be_a(Publication) }
+      it { is_expected.to be_a(Project) }
 
-      it "deletes publication" do
-        expect { subject }.to change { Publication.count }.by(-1)
+      it "deletes project" do
+        expect { subject }.to change { Project.count }.by(-1)
       end
     end
 
     context "when discarded is false" do
-      let!(:publication) { create(:publication) }
+      let!(:project) { create(:project) }
 
       it { is_expected.to be false }
 
-      it "doesn't delete publication" do
-        expect { subject }.not_to change { Publication.count }
+      it "doesn't delete project" do
+        expect { subject }.not_to change { Project.count }
       end
     end
   end
 
-  context "when publication is updated" do
-    let(:publication) { create(:publication, title: "foo", name: "foo") }
+  context "when project is updated" do
+    let(:project) { create(:project, title: "foo", name: "foo") }
 
-    subject { publication.update(title: "bar", name: "bar") }
+    subject { project.update(title: "bar", name: "bar") }
 
     it "prevents name updates" do
-      expect { subject }.not_to change { publication.reload.name }
+      expect { subject }.not_to change { project.reload.name }
     end
   end
 
-  context "when publication is discarded" do
-    subject { publication.discard }
+  context "when project is discarded" do
+    subject { project.discard }
 
-    context "when publication is published" do
-      let(:publication) { create(:publication, :published) }
+    context "when project is published" do
+      let(:project) { create(:project, :published) }
 
       include_examples "successful unpublish"
     end
 
-    context "when publication is not published" do
-      let(:publication) { create(:publication) }
+    context "when project is not published" do
+      let(:project) { create(:project) }
 
       include_examples "failed unpublish"
     end

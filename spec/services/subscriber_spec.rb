@@ -35,15 +35,15 @@ RSpec.describe Subscriber, type: :model do
     context "when message is valid" do
       include_context "valid message"
 
-      context "when publication exists" do
-        let!(:publication) { create(:publication, :published, id: "13371337-1337-1337-1337-133713371337") }
+      context "when project exists" do
+        let!(:project) { create(:project, :published, id: "13371337-1337-1337-1337-133713371337") }
 
-        it "updates publication to deployed" do
-          expect { subject }.to change { publication.reload.deployed? }.to(true)
+        it "updates project to deployed" do
+          expect { subject }.to change { project.reload.deployed? }.to(true)
         end
       end
 
-      context "when publication doesn't exist" do
+      context "when project doesn't exist" do
         it "raises an error" do
           expect { subject }.to raise_error(ActiveRecord::RecordNotFound)
         end
@@ -65,15 +65,15 @@ RSpec.describe Subscriber, type: :model do
     context "when message is valid" do
       include_context "valid message"
 
-      context "when publication exists" do
-        let!(:publication) { create(:publication, :discarded, id: "13371337-1337-1337-1337-133713371337") }
+      context "when project exists" do
+        let!(:project) { create(:project, :discarded, id: "13371337-1337-1337-1337-133713371337") }
 
-        it "deletes publication" do
-          expect { subject }.to change { Publication.count }.by(-1)
+        it "deletes project" do
+          expect { subject }.to change { Project.count }.by(-1)
         end
       end
 
-      context "when publication doesn't exist" do
+      context "when project doesn't exist" do
         it "raises an error" do
           expect { subject }.to raise_error(ActiveRecord::RecordNotFound)
         end

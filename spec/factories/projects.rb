@@ -1,8 +1,8 @@
 FactoryBot.define do
-  factory :publication do
+  factory :project do
     user
+    sequence(:name) { |n| "project-#{n}" }
     title { "title" }
-    sequence(:name) { |n| "publication-#{n}" }
 
     trait :published do
       published_at { Time.current }

@@ -9,12 +9,12 @@ RSpec.describe User, type: :model do
 
   context "when user is destroyed" do
     let(:user) { create(:user) }
-    before { create(:publication, user: user) }
+    before { create(:project, user: user) }
 
     subject { user.destroy }
 
-    it "destroys any publications" do
-      expect { subject }.to change { Publication.count }.by(-1)
+    it "destroys any projects" do
+      expect { subject }.to change { Project.count }.by(-1)
     end
   end
 end

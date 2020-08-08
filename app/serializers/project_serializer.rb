@@ -1,4 +1,4 @@
-class PublicationSerializer
+class ProjectSerializer
   include FastJsonapi::ObjectSerializer
 
   attributes :name, :title

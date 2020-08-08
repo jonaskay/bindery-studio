@@ -1,14 +1,14 @@
 require 'rails_helper'
 
-RSpec.describe "Api::V1::Publications", type: :request do
-  describe "GET /api/v1/publications/:id" do
-    before { get "/api/v1/publications/#{publication.id}" }
+RSpec.describe "Api::V1::Projects", type: :request do
+  describe "GET /api/v1/projects/:id" do
+    before { get "/api/v1/projects/#{project.id}" }
 
     describe "response" do
       subject { response }
 
-      context "when publication is published" do
-        let(:publication) { create(:publication, :published, name: "foo", title: "bar") }
+      context "when project is published" do
+        let(:project) { create(:project, :published, name: "foo", title: "bar") }
 
         it { is_expected.to have_http_status(:success) }
 
@@ -18,8 +18,8 @@ RSpec.describe "Api::V1::Publications", type: :request do
           it { is_expected.to eq(
             {
               data: {
-                id: publication.id.to_s,
-                type: "publication",
+                id: project.id.to_s,
+                type: "project",
                 attributes: {
                   name: "foo",
                   title: "bar"
@@ -30,8 +30,8 @@ RSpec.describe "Api::V1::Publications", type: :request do
         end
       end
 
-      context "when publication is not published" do
-        let(:publication) { create(:publication) }
+      context "when project is not published" do
+        let(:project) { create(:project) }
 
         it { is_expected.to have_http_status(:not_found) }
 

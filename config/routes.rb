@@ -6,7 +6,7 @@ Rails.application.routes.draw do
 
   get 'welcome/index'
 
-  resources :publications, except: :show, param: :name, path: 'content' do
+  resources :projects, except: :show, param: :name do
     resources :publishings, path: 'publish', only: :create
   end
 
@@ -21,7 +21,7 @@ Rails.application.routes.draw do
 
   namespace :api, constraints: { format: 'json' } do
     namespace :v1 do
-      resources :publications, only: :show
+      resources :projects, only: :show
     end
   end
 end

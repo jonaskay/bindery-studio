@@ -1,0 +1,6 @@
+<h1>New Project</h1>
+<%= render 'shared/errors', obj: @project %>
+<%= form_with model: @project, local: true do |f| %>
+  <%= render 'fields', f: f %>
+  <%= f.submit "Create" %>
+<% end %>
