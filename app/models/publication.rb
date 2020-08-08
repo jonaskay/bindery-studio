@@ -25,7 +25,7 @@ class Publication < ApplicationRecord
   end
 
   def url
-    "#{ENV["BASE_URL"]}#{name}/index.html"
+    "#{ENV.fetch("DEPLOYED_BASE_URL")}#{name}/index.html"
   end
 
   def published?
