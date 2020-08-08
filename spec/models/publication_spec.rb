@@ -72,6 +72,14 @@ RSpec.describe Publication, type: :model do
       it { is_expected.to be false }
     end
 
+    context "when name is taken" do
+      let(:publication) { build(:publication, name: "foo") }
+
+      before { create(:publication, name: "foo") }
+
+      it { is_expected.to be false }
+    end
+
     context "when name is 63 characters long" do
       let(:publication) { build(:publication, name: "a" * 63) }
 

@@ -15,7 +15,8 @@ class Publication < ApplicationRecord
   validates :title, presence: true
   validates :name, presence: true,
                    length: { maximum: MAX_NAME_LENGTH },
-                   format: { with: /\A[a-z0-9]([-a-z0-9]*[a-z0-9])?\z/ }
+                   format: { with: /\A[a-z0-9]([-a-z0-9]*[a-z0-9])?\z/ },
+                   uniqueness: { case_sensitive: false }
 
   after_discard :unpublish, if: -> { published? }
 
