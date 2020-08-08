@@ -15,7 +15,7 @@ class Authenticator
     validator = args[0] || instance.validator
 
     begin
-      validator.check(token, ENV.fetch("HOST"))
+      validator.check(token, ENV.fetch("APP_HOST"))
       return true
     rescue GoogleIDToken::ValidationError => err
       return false
