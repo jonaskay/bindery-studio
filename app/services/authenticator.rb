@@ -13,9 +13,10 @@ class Authenticator
 
   def self.validate_token(token, *args)
     validator = args[0] || instance.validator
+    audience = URI.parse(ENV.fetch("BASE_URL")).host
 
     begin
-      validator.check(token, ENV.fetch("APP_HOST"))
+      validator.check(token, audience)
       return true
     rescue GoogleIDToken::ValidationError => err
       return false
