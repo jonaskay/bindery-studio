@@ -6,7 +6,7 @@ env_variables:
   COMPUTE_ENGINE_PUBLISH_TEMPLATE: publish-v7
   COMPUTE_ENGINE_ZONE: europe-west1-b
   DATABASE_NAME: studio_production
-  DEPLOYED_BASE_URL: https://go.bindery.app
+  DEPLOYED_BASE_URL: https://go.bindery.app/
   GOOGLE_CLOUD_PROJECT: august-strata-281417
   PUBSUB_CLEANER_TOPIC: cleaner-topic
   RAILS_ENV: production
