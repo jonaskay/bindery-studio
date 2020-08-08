@@ -12,7 +12,7 @@ RSpec.describe "Project publishing", type: :system do
     stub(:compute, :insert_instance, params: {
       "project" => "my-project",
       "zone" => "my-zone",
-      "template" => "my-publish-template"
+      "template" => "my-compositor-template"
     }).with_json('{ "id": "42" }')
 
     sign_in user
