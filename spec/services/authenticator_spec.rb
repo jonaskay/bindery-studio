@@ -33,9 +33,9 @@ RSpec.describe Authenticator, type: :model do
     let(:validator) { instance_double("GoogleIDToken::Validator") }
 
     before do
-      allow(validator).to receive(:check).with("foo", "TODO")
+      allow(validator).to receive(:check).with("foo", "www.example.com")
                                          .and_return({ foo: "bar" })
-      allow(validator).to receive(:check).with("invalid", "TODO")
+      allow(validator).to receive(:check).with("invalid", "www.example.com")
                                          .and_raise(GoogleIDToken::ValidationError)
     end
 

@@ -6,5 +6,6 @@ env_variables:
   COMPUTE_ENGINE_ZONE: europe-west1-b
   DATABASE_NAME: studio_production
   GOOGLE_CLOUD_PROJECT: august-strata-281417
+  HOST: studio.bindery.app
   PUBSUB_CLEANER_TOPIC: cleaner-topic
   RAILS_ENV: production
