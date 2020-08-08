@@ -1,2 +1,0 @@
-#!/bin/bash
-gcloud -q app deploy app.yaml --promote
