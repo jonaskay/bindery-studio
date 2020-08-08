@@ -25,7 +25,7 @@ class Project < ApplicationRecord
   end
 
   def url
-    "#{ENV.fetch("DEPLOYED_BASE_URL")}#{name}/index.html"
+    "#{ENV.fetch("DEPLOYED_BASE_URL")}/#{name}/index.html"
   end
 
   def published?
