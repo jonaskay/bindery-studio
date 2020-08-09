@@ -14,13 +14,12 @@ addons:
     - chromium-chromedriver
 env:
   global:
-    - BASE_URL=http://www.example.com
     - CLOUDSDK_CORE_DISABLE_PROMPTS=1
-    - COMPUTE_ENGINE_COMPOSITOR_TEMPLATE=my-compositor-template
-    - COMPUTE_ENGINE_ZONE=my-zone
     - GOOGLE_APPLICATION_CREDENTIALS=service-account-travis-ci.json
     - GOOGLE_CLOUD_PROJECT=august-strata-281417
-    - PUBSUB_CLEANER_TOPIC=my-cleaner-topic
+    - SMTP_ADDRESS=smtp.eu.mailgun.org
+    - SMTP_PORT=587
+    - SMTP_USERNAME=postmaster@mg.bindery.app
 before_install:
   - openssl aes-256-cbc -K $encrypted_9f3b5599b056_key -iv $encrypted_9f3b5599b056_iv -in service-account-travis-ci.json.enc -out service-account-travis-ci.json -d
   - if [ ! -d ${HOME}/google-cloud-sdk/bin ]; then
