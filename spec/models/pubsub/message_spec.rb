@@ -66,7 +66,7 @@ RSpec.describe Pubsub::Message, type: :model do
   end
 
   describe "#valid?" do
-    let(:project)   { { "id" => "42", "name" => "foo" } }
+    let(:project)   { { "id" => "42" } }
     let(:timestamp) { "1970-01-01T00:00:00.000Z" }
     let(:payload)   { { "project" => project, "timestamp" => timestamp } }
     let(:message)   { Pubsub::Message.new(payload) }
