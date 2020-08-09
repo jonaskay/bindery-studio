@@ -5,7 +5,9 @@ env_variables:
   BASE_URL: https://studio.bindery.app
   COMPUTE_ENGINE_COMPOSITOR_TEMPLATE: compositor
   COMPUTE_ENGINE_ZONE: europe-west1-b
+  DATABASE_HOST: /cloudsql/august-strata-281417:europe-west1:shampoo-abruptly-evaporate
   DATABASE_NAME: studio_production
+  DATABASE_USERNAME: postgres
   DEPLOYED_BASE_URL: https://go.bindery.app
   GOOGLE_CLOUD_PROJECT: august-strata-281417
   PUBSUB_CLEANER_TOPIC: cleaner-topic

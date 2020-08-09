@@ -84,6 +84,6 @@ test:
 production:
   <<: *default
   database: <%= ENV.fetch("DATABASE_NAME") { "app_production" } %>
-  host: /cloudsql/<%= Rails.application.credentials.db&.fetch(:instance_connection_name) %>
-  username: <%= Rails.application.credentials.db&.fetch(:username) %>
+  host: <%= ENV.fetch("DATABASE_HOST") %>
+  username: <%= ENV.fetch("DATABASE_USERNAME") { "postgres" } %>
   password: <%= Rails.application.credentials.db&.fetch(:password) %>
