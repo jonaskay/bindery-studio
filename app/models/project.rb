@@ -46,8 +46,21 @@ class Project < ApplicationRecord
     released? && deployed?
   end
 
-  def errored?
-    released? && messages.error.any? && released_at < messages.last.created_at
+  def deployment_failed?
+    deployment_errored? || deployment_timed_out?
+  end
+
+  def deployment_errored?
+    return false if !released? || deployed?
+    return false if messages.error.empty?
+
+    messages.error.last.created_at > released_at
+  end
+
+  def deployment_timed_out?
+    return false if !released? || deployed?
+
+    released_at < 1.hour.ago
   end
 
   def status
@@ -56,7 +69,7 @@ class Project < ApplicationRecord
                 elsif hidden?
                   :unpublished
                 elsif released?
-                  if errored?
+                  if deployment_failed?
                     :error
                   elsif deployed?
                     :published
@@ -71,7 +84,7 @@ class Project < ApplicationRecord
   end
 
   def publish
-    return false if discarded? || released? && !errored?
+    return false if discarded? || released? && !deployment_failed?
 
     Publisher.publish(self)
     update!(released_at: Time.current)

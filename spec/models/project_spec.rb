@@ -239,8 +239,40 @@ RSpec.describe Project, type: :model do
     end
   end
 
-  describe "#errored?" do
-    subject { project.errored? }
+  describe "#deployment_failed?" do
+    subject { project.deployment_failed? }
+
+    context "when deployment_timed_out? is true" do
+      context "when deployment_errored? is true" do
+        let(:project) { create(:project, :deployment_timed_out, :deployment_errored) }
+
+        it { is_expected.to be true }
+      end
+
+      context "when deployment_errored? is false" do
+        let(:project) { create(:project, :deployment_timed_out) }
+
+        it { is_expected.to be true }
+      end
+    end
+
+    context "when deployment_timed_out? is false" do
+      context "when deployment_errored? is true" do
+        let(:project) { create(:project, :released, :deployment_errored) }
+
+        it { is_expected.to be true }
+      end
+
+      context "when deployment_errored? is false" do
+        let(:project) { create(:project, :released) }
+
+        it { is_expected.to be false }
+      end
+    end
+  end
+
+  describe "#deployment_errored?" do
+    subject { project.deployment_errored? }
 
     context "when released? is true" do
       let(:project) { create(:project, :released) }
@@ -266,7 +298,15 @@ RSpec.describe Project, type: :model do
       context "when latest error message created_at is greater than released_at" do
         before { create(:project_message, :error, project: project, created_at: 1.hour.since) }
 
-        it { is_expected.to be true }
+        context "when deployed? is true" do
+          let(:project) { create(:project, :released, :deployed) }
+
+          it { is_expected.to be false }
+        end
+
+        context "when deployed? is false" do
+          it { is_expected.to be true }
+        end
       end
     end
 
@@ -299,6 +339,58 @@ RSpec.describe Project, type: :model do
     end
   end
 
+  describe "#deployment_timed_out?" do
+    subject { project.deployment_timed_out? }
+
+    context "when released? is true" do
+      context "when deployed? is true" do
+        let(:project) { create(:project, :deployed, released_at: released_at) }
+
+        context "when released_at is less than 1 hour ago" do
+          let(:released_at) { 2.hours.ago }
+
+          it { is_expected.to be false }
+        end
+
+        context "when released_at is greater than 1 hour ago" do
+          let(:released_at) { Time.current }
+
+          it { is_expected.to be false }
+        end
+      end
+
+      context "when deployed? is false" do
+        let(:project) { create(:project, released_at: released_at) }
+
+        context "when released_at is less than 1 hour ago" do
+          let(:released_at) { 2.hours.ago }
+
+          it { is_expected.to be true }
+        end
+
+        context "when released_at is greater than 1 hour ago" do
+          let(:released_at) { Time.current }
+
+          it { is_expected.to be false }
+        end
+      end
+    end
+
+    context "when released? is false" do
+      context "when deployed? is true" do
+        let(:project) { create(:project, :deployed) }
+
+        it { is_expected.to be false }
+      end
+
+      context "when deployed? is false" do
+        let(:project) { create(:project) }
+
+        it { is_expected.to be false }
+      end
+    end
+  end
+
   describe "#status" do
     subject { project.status }
 
@@ -319,13 +411,13 @@ RSpec.describe Project, type: :model do
 
       context "when deployed? is false" do
         context "when discarded? is true" do
-          context "when errored? is true" do
-            let(:project) { create(:project, :released, :discarded, :errored) }
+          context "when deployment_failed? is true" do
+            let(:project) { create(:project, :released, :discarded, :deployment_failed) }
 
             it { is_expected.to eq "Deleting" }
           end
 
-          context "when errored? is false" do
+          context "when deployment_failed? is false" do
             let(:project) { create(:project, :released, :discarded) }
 
             it { is_expected.to eq "Deleting" }
@@ -333,13 +425,13 @@ RSpec.describe Project, type: :model do
         end
 
         context "when discarded? is false" do
-          context "when errored? is true" do
-            let(:project) { create(:project, :released, :errored) }
+          context "when deployment_failed? is true" do
+            let(:project) { create(:project, :released, :deployment_failed) }
 
             it { is_expected.to eq "Error" }
           end
 
-          context "when errored? is false" do
+          context "when deployment_failed? is false" do
             let(:project) { create(:project, :released) }
 
             it { is_expected.to eq "Publishing" }
@@ -383,13 +475,13 @@ RSpec.describe Project, type: :model do
     end
 
     context "when released_at? is true" do
-      context "when errored? is true" do
-        let(:project) { create(:project, :released, :errored) }
+      context "when deployment_failed? is true" do
+        let(:project) { create(:project, :released, :deployment_failed) }
 
         include_examples "successful publish"
       end
 
-      context "when errored? is false" do
+      context "when deployment_failed? is false" do
         let(:project) { create(:project, :released) }
 
         include_examples "skipped publish"

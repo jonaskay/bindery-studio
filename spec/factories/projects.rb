@@ -21,8 +21,17 @@ FactoryBot.define do
       discarded_at { Time.current }
     end
 
-    trait :errored do
+    trait :deployment_timed_out do
+      released_at { 1.hour.ago }
+    end
+
+    trait :deployment_errored do
       after(:create) { |project| create(:project_message, :error, project: project) }
+    end
+
+    trait :deployment_failed do
+      deployment_timed_out
+      deployment_errored
     end
   end
 end

@@ -2,6 +2,25 @@ require "rails_helper"
 require "support/helpers/googleapis_helper"
 require "support/helpers/selector_helper"
 
+RSpec.shared_examples "successful republish" do
+  it "enables user to republish the project" do
+    visit "/projects"
+
+    within(project_row(project)) do
+      expect(page).to have_text("Error")
+
+      click_link "My Project"
+    end
+
+    expect(page).to have_text("Publishing the project failed. Click Publish to try again.")
+
+    click_link "Publish"
+
+    expect(page).to have_text("Project is being published. This process will take a few minutes.")
+    expect(page).not_to have_text("Publishing the project failed. Click Publish to try again.")
+  end
+end
+
 RSpec.describe "Project publishing", type: :system do
   include GoogleapisHelper
   include SelectorHelper
@@ -50,21 +69,12 @@ RSpec.describe "Project publishing", type: :system do
 
     before { create(:project_message, :error, project: project, detail: "Lorem ipsum") }
 
-    it "enables user to republish the project" do
-      visit "/projects"
+    include_examples "successful republish"
+  end
 
-      within(project_row(project)) do
-        expect(page).to have_text("Error")
+  context "when project publishing has timed-out" do
+    let!(:project) { create(:project, user: user, name: "my-project", title: "My Project", released_at: 1.hour.ago) }
 
-        click_link "My Project"
-      end
-
-      expect(page).to have_text("Publishing the project failed. Click Publish to try again.")
-
-      click_link "Publish"
-
-      expect(page).to have_text("Project is being published. This process will take a few minutes.")
-      expect(page).not_to have_text("Publishing the project failed. Click Publish to try again.")
-    end
+    include_examples "successful republish"
   end
 end

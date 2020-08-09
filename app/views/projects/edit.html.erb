@@ -9,7 +9,7 @@
   <% if @project.deployed? %>
     <%= link_to "Visit site", @project.url %>
   <% else %>
-    <% if @project.errored? %>
+    <% if @project.deployment_failed? %>
       <%= publish_link(@project) %>
       <p>
         Publishing the project failed. Click Publish to try again.
