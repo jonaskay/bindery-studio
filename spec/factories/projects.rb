@@ -4,8 +4,17 @@ FactoryBot.define do
     sequence(:name) { |n| "project-#{n}" }
     title { "title" }
 
+    trait :released do
+      released_at { Time.current }
+    end
+
+    trait :deployed do
+      deployed_at { Time.current }
+    end
+
     trait :published do
-      published_at { Time.current }
+      released
+      deployed
     end
 
     trait :discarded do

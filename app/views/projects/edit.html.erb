@@ -5,7 +5,7 @@
   <%= f.submit "Update" %>
 <% end %>
 <%= content_tag :div, @project.id %>
-<% if @project.published? %>
+<% if @project.released? %>
   <% if @project.deployed? %>
     <%= link_to "Visit site", @project.url %>
   <% else %>

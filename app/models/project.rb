@@ -6,7 +6,7 @@ class Project < ApplicationRecord
   MIN_NAME_LENGTH = 1
   MAX_NAME_LENGTH = 63
 
-  scope :published, -> { kept.where.not(published_at: nil) }
+  scope :revealed, -> { kept.where.not(released_at: nil) }
 
   belongs_to :user
 
@@ -28,28 +28,50 @@ class Project < ApplicationRecord
     "#{ENV.fetch("DEPLOYED_BASE_URL")}/#{name}/index.html"
   end
 
-  def published?
-    !published_at.nil?
+  def hidden?
+    released_at.nil?
   end
 
-  def unpublished?
-    !published?
+  def released?
+    !released_at.nil?
   end
 
   def deployed?
-    published? && !deployed_at.nil?
+    !deployed_at.nil?
+  end
+
+  def published?
+    released? && deployed?
+  end
+
+  def status
+    attribute = if discarded?
+                  :deleting
+                elsif hidden?
+                  :unpublished
+                elsif released?
+                  if deployed?
+                    :published
+                  else
+                    :publishing
+                  end
+                else
+                  raise Project::Error.new("Unknown state")
+                end
+
+    I18n.t("activerecord.attributes.#{self.class.name.underscore}.statuses.#{attribute}")
   end
 
   def publish
-    return false if published? || discarded?
+    return false if released? || discarded?
 
     Publisher.publish(self)
-    update!(published_at: Time.current)
+    update!(released_at: Time.current)
   end
 
   def unpublish
     Cleaner.clean(self)
-    update!(published_at: nil)
+    update!(released_at: nil)
   end
 
   def confirm_deployment(timestamp)

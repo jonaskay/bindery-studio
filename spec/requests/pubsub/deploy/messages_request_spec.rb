@@ -1,5 +1,5 @@
 require "rails_helper"
-require "support/examples/pubsub"
+require "support/examples/request_examples"
 
 RSpec.describe "Pubsub::Deploy::Messages", type: :request do
   describe "POST /pubsub/deploy" do

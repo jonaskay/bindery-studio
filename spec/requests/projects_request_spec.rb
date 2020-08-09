@@ -1,4 +1,5 @@
 require 'rails_helper'
+require 'support/examples/request_examples'
 
 RSpec.describe "Projects", type: :request do
   describe "GET /projects" do
@@ -18,11 +19,7 @@ RSpec.describe "Projects", type: :request do
     end
 
     context "when logged out" do
-      it "redirects to /users/sign_in" do
-        subject
-
-        expect(response).to redirect_to("/users/sign_in")
-      end
+      include_examples "failed authentication"
     end
   end
 
@@ -43,11 +40,7 @@ RSpec.describe "Projects", type: :request do
     end
 
     context "when logged out" do
-      it "redirects to /users/sign_in" do
-        subject
-
-        expect(response).to redirect_to("/users/sign_in")
-      end
+      include_examples "failed authentication"
     end
   end
 
@@ -68,11 +61,7 @@ RSpec.describe "Projects", type: :request do
     end
 
     context "when logged out" do
-      it "redirects to /users/sign_in" do
-        subject
-
-        expect(response).to redirect_to("/users/sign_in")
-      end
+      include_examples "failed authentication"
     end
   end
 
@@ -88,10 +77,18 @@ RSpec.describe "Projects", type: :request do
         sign_in user
       end
 
-      it "returns http success" do
-        subject
+      context "when project is undiscarded" do
+        it "returns http success" do
+          subject
 
-        expect(response).to have_http_status(:success)
+          expect(response).to have_http_status(:success)
+        end
+      end
+
+      context "when project is discarded" do
+        before { project.discard }
+
+        include_examples "failed routing"
       end
     end
 
@@ -100,17 +97,11 @@ RSpec.describe "Projects", type: :request do
         sign_in other_user
       end
 
-      it "raises a routing error" do
-        expect { subject }.to raise_error(ActionController::RoutingError)
-      end
+      include_examples "failed routing"
     end
 
     context "when logged out" do
-      it "redirects to /users/sign_in" do
-        subject
-
-        expect(response).to redirect_to("/users/sign_in")
-      end
+      include_examples "failed authentication"
     end
   end
 
@@ -126,10 +117,18 @@ RSpec.describe "Projects", type: :request do
         sign_in user
       end
 
-      it "redirects to /projects/:name/edit" do
-        subject
+      context "when project is undiscarded" do
+        it "redirects to /projects/:name/edit" do
+          subject
 
-        expect(response).to redirect_to("/projects/#{project.name}/edit")
+          expect(response).to redirect_to("/projects/#{project.name}/edit")
+        end
+      end
+
+      context "when project is discarded" do
+        before { project.discard }
+
+        include_examples "failed routing"
       end
     end
 
@@ -138,17 +137,11 @@ RSpec.describe "Projects", type: :request do
         sign_in other_user
       end
 
-      it "raises a routing error" do
-        expect { subject }.to raise_error(ActionController::RoutingError)
-      end
+      include_examples "failed routing"
     end
 
     context "when logged out" do
-      it "redirects to /users/sign_in" do
-        subject
-
-        expect(response).to redirect_to("/users/sign_in")
-      end
+      include_examples "failed authentication"
     end
   end
 
@@ -164,10 +157,18 @@ RSpec.describe "Projects", type: :request do
         sign_in user
       end
 
-      it "redirects to /projects" do
-        subject
+      context "when project is undiscarded" do
+        it "redirects to /projects" do
+          subject
 
-        expect(response).to redirect_to("/projects")
+          expect(response).to redirect_to("/projects")
+        end
+      end
+
+      context "when project is discarded" do
+        before { project.discard }
+
+        include_examples "failed routing"
       end
     end
 
@@ -176,17 +177,11 @@ RSpec.describe "Projects", type: :request do
         sign_in other_user
       end
 
-      it "raises a routing error" do
-        expect { subject }.to raise_error(ActionController::RoutingError)
-      end
+      include_examples "failed routing"
     end
 
     context "when logged out" do
-      it "redirects to /users/sign_in" do
-        subject
-
-        expect(response).to redirect_to("/users/sign_in")
-      end
+      include_examples "failed authentication"
     end
   end
 end

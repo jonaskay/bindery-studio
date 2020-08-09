@@ -4,7 +4,7 @@ class CreateProjects < ActiveRecord::Migration[6.0]
       t.references :user, type: :uuid, null: false, foreign_key: true
       t.string :name, null: false
       t.string :title
-      t.datetime :published_at
+      t.datetime :released_at
       t.datetime :deployed_at
       t.datetime :discarded_at
 
@@ -12,7 +12,7 @@ class CreateProjects < ActiveRecord::Migration[6.0]
     end
 
     add_index :projects, :name, unique: true
-    add_index :projects, :published_at
+    add_index :projects, :released_at
     add_index :projects, :discarded_at
   end
 end

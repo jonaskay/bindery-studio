@@ -1,10 +1,10 @@
 require "rails_helper"
 
-RSpec.shared_examples "failed publish" do
+RSpec.shared_examples "skipped publish" do
   it { is_expected.to be false }
 
-  it "doesn't update published_at" do
-    expect { subject }.not_to change { project.reload.published_at }
+  it "doesn't update released_at" do
+    expect { subject }.not_to change { project.reload.released_at }
   end
 
   it "doesn't call publisher" do
@@ -25,12 +25,12 @@ RSpec.shared_examples "successful unpublish" do
     subject
   end
 
-  it "updates project to unpublished" do
-    expect { subject }.to change { project.reload.unpublished? }
+  it "updates project to hidden" do
+    expect { subject }.to change { project.reload.hidden? }
   end
 end
 
-RSpec.shared_examples "failed unpublish" do
+RSpec.shared_examples "skipped unpublish" do
   let(:cleaner) { class_double(Cleaner).as_stubbed_const }
 
   before { allow(cleaner).to receive(:clean).with(project) }
@@ -41,8 +41,8 @@ RSpec.shared_examples "failed unpublish" do
     subject
   end
 
-  it "doesn't update project to unpublished" do
-    expect { subject }.not_to change { project.reload.unpublished? }
+  it "doesn't update project to hidden" do
+    expect { subject }.not_to change { project.reload.hidden? }
   end
 end
 
@@ -155,61 +155,121 @@ RSpec.describe Project, type: :model do
     it { is_expected.to eq("http://www.example.com/foo/index.html") }
   end
 
-  describe "#published?" do
-    subject { project.published? }
+  describe "#hidden?" do
+    subject { project.hidden? }
 
-    context "when discarded is false and published_at is not nil" do
-      let(:project) { create(:project, published_at: Time.current) }
+    context "when released? is true" do
+      let(:project) { create(:project, :released) }
+
+      it { is_expected.to be false }
+    end
+
+    context "when released? is false" do
+      let(:project) { create(:project) }
 
       it { is_expected.to be true }
     end
-
-    context "when discarded is true" do
-      let(:project) { create(:project, :discarded, published_at: Time.current) }
-    end
-
-    context "when published_at is nil" do
-      let(:project) { create(:project, published_at: nil) }
-
-      it { is_expected.to be false }
-    end
   end
 
-  describe "#unpublished?" do
-    subject { project.unpublished? }
+  describe "#released?" do
+    subject { project.released? }
 
-    context "when published is true" do
-      let(:project) { create(:project, :published) }
+    context "when released_at is nil" do
+      let(:project) { create(:project, released_at: nil) }
 
       it { is_expected.to be false }
     end
 
-    context "when published is false" do
-      let(:project) { create(:project, :published) }
+    context "when released_at is not nil" do
+      let(:project) { create(:project, released_at: Time.current) }
 
-      it { is_expected.to be false }
+      it { is_expected.to be true }
     end
   end
 
   describe "#deployed?" do
     subject { project.deployed? }
 
-    context "when published is true and deployed_at is not nil" do
-      let(:project) { create(:project, :published, deployed_at: Time.current) }
+    context "when deployed_at is nil" do
+      let(:project) { create(:project, deployed_at: nil) }
+
+      it { is_expected.to be false }
+    end
+
+    context "when deployed_at is not nil" do
+      let(:project) { create(:project, deployed_at: Time.current) }
+
+      it { is_expected.to be true }
+    end
+  end
+
+  describe "#published?" do
+    subject { project.published? }
+
+    context "when released? is true and deployed? is true" do
+      let(:project) { create(:project, :released, :deployed) }
 
       it { is_expected.to be true }
     end
 
-    context "when published is false" do
-      let(:project) { create(:project, deployed_at: Time.current) }
+    context "when released? is true" do
+      let(:project) { create(:project, :released) }
 
       it { is_expected.to be false }
     end
 
-    context "when deployed_at is nil" do
-      let(:project) { create(:project, :published, deployed_at: nil) }
+    context "when deployed? is true" do
+      let(:project) { create(:project, :deployed) }
 
       it { is_expected.to be false }
+    end
+  end
+
+  describe "#status" do
+    subject { project.status }
+
+    context "when released? is true" do
+      context "when deployed? is true" do
+        context "when discarded? is true" do
+          let(:project) { build(:project, :released, :deployed, :discarded) }
+
+          it { is_expected.to eq("Deleting") }
+        end
+
+        context "when discarded? is false" do
+          let(:project) { build(:project, :released, :deployed) }
+
+          it { is_expected.to eq("Published") }
+        end
+      end
+
+      context "when deployed? is false" do
+        context "when discarded? is true" do
+          let(:project) { build(:project, :released, :discarded) }
+
+          it { is_expected.to eq("Deleting") }
+        end
+
+        context "when discarded? is false" do
+          let(:project) { build(:project, :released) }
+
+          it { is_expected.to eq("Publishing") }
+        end
+      end
+    end
+
+    context "when hidden? is true" do
+      context "when discarded? is true" do
+        let(:project) { build(:project, :discarded) }
+
+        it { is_expected.to eq("Deleting") }
+      end
+
+      context "when discarded? is false" do
+        let(:project) { build(:project) }
+
+        it { is_expected.to eq("Unpublished") }
+      end
     end
   end
 
@@ -220,13 +280,13 @@ RSpec.describe Project, type: :model do
 
     subject { project.publish }
 
-    context "when published_at is nil and discarded is false" do
-      let(:project) { create(:project) }
+    context "when released_at is nil and discarded? is false" do
+      let(:project) { create(:project, released_at: nil) }
 
       it { is_expected.to be true }
 
-      it "updates published_at" do
-        expect { subject }.to change { project.reload.published_at }
+      it "updates released_at" do
+        expect { subject }.to change { project.reload.released_at }
       end
 
       it "calls publisher" do
@@ -236,16 +296,16 @@ RSpec.describe Project, type: :model do
       end
     end
 
-    context "when discarded is true" do
+    context "when discarded? is true" do
       let(:project) { create(:project, :discarded) }
 
-      include_examples "failed publish"
+      include_examples "skipped publish"
     end
 
-    context "when published_at is not nil" do
-      let(:project) { create(:project, :published) }
+    context "when released_at is not nil" do
+      let(:project) { create(:project, released_at: Time.current) }
 
-      include_examples "failed publish"
+      include_examples "skipped publish"
     end
   end
 
@@ -262,7 +322,7 @@ RSpec.describe Project, type: :model do
 
     subject { project.confirm_deployment(DateTime.parse("1970-01-01T00:00:00.000Z")) }
 
-    it "updateds project to deployed" do
+    it "updates deployed_at" do
       expect { subject }.to change { project.reload.deployed_at.to_s }.to("1970-01-01 00:00:00 UTC")
     end
   end
@@ -270,7 +330,7 @@ RSpec.describe Project, type: :model do
   describe "#confirm_cleanup" do
     subject { project.confirm_cleanup }
 
-    context "when discarded is true" do
+    context "when discarded? is true" do
       let!(:project) { create(:project, :discarded) }
 
       it { is_expected.to be_a(Project) }
@@ -280,7 +340,7 @@ RSpec.describe Project, type: :model do
       end
     end
 
-    context "when discarded is false" do
+    context "when discarded? is false" do
       let!(:project) { create(:project) }
 
       it { is_expected.to be false }
@@ -304,16 +364,26 @@ RSpec.describe Project, type: :model do
   context "when project is discarded" do
     subject { project.discard }
 
-    context "when project is published" do
+    context "when published? is true" do
       let(:project) { create(:project, :published) }
 
       include_examples "successful unpublish"
     end
 
-    context "when project is not published" do
+    context "when published? is false" do
       let(:project) { create(:project) }
 
-      include_examples "failed unpublish"
+      context "when released? is true" do
+        skip "hides project"
+      end
+
+      context "when released? is false" do
+        include_examples "skipped unpublish"
+
+        context "when deployed? is true" do
+          skip "removes deployment"
+        end
+      end
     end
   end
 end

@@ -20,14 +20,14 @@ ActiveRecord::Schema.define(version: 2020_08_08_100835) do
     t.uuid "user_id", null: false
     t.string "name", null: false
     t.string "title"
-    t.datetime "published_at"
+    t.datetime "released_at"
     t.datetime "deployed_at"
     t.datetime "discarded_at"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["discarded_at"], name: "index_projects_on_discarded_at"
     t.index ["name"], name: "index_projects_on_name", unique: true
-    t.index ["published_at"], name: "index_projects_on_published_at"
+    t.index ["released_at"], name: "index_projects_on_released_at"
     t.index ["user_id"], name: "index_projects_on_user_id"
   end
 

@@ -34,3 +34,8 @@ en:
     attributes:
       project:
         name: "Project ID"
+        statuses:
+          deleting: "Deleting"
+          published: "Published"
+          publishing: "Publishing"
+          unpublished: "Unpublished"

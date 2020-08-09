@@ -1,7 +1,7 @@
 require "rails_helper"
 require "support/googleapis"
 
-RSpec.describe "Project management", type: :system, js: true do
+RSpec.describe "Project management", type: :system do
   include Googleapis
 
   let(:user) { create(:user, :confirmed) }
@@ -33,7 +33,7 @@ RSpec.describe "Project management", type: :system, js: true do
       click_link "Add Project"
     end
 
-    it "enables user to create a project piece" do
+    it "enables user to create a project" do
       fill_in "Title", with: "My Title"
       fill_in "Project ID", with: "my-id"
       click_button "Create"
@@ -41,7 +41,7 @@ RSpec.describe "Project management", type: :system, js: true do
       expect(page).to have_text("Project created!")
     end
 
-    it "prevents user from creating a project piece with invalid data" do
+    it "prevents user from creating a project with invalid data" do
       fill_in "Title", with: "   "
       fill_in "Project ID", with: "   "
 
@@ -58,7 +58,7 @@ RSpec.describe "Project management", type: :system, js: true do
       visit "/projects"
     end
 
-    it "enables user to edit a project piece" do
+    it "enables user to edit a project" do
       click_link "My Project"
 
       expect(page).to have_field("Project ID", disabled: true)
@@ -73,7 +73,7 @@ RSpec.describe "Project management", type: :system, js: true do
       expect(page).to have_link("Updated Title")
     end
 
-    it "prevents user from editing a project piece with invalid data" do
+    it "prevents user from editing a project with invalid data" do
       click_link "My Project"
 
       fill_in "Title", with: "   "
@@ -81,30 +81,6 @@ RSpec.describe "Project management", type: :system, js: true do
 
       expect(page).to have_text("Oops! Could not update project.")
       expect(page).to have_text("Title can't be blank")
-    end
-  end
-
-  context "when deleting project" do
-    before do
-      handle_oauth_request
-
-      stub(:compute, :insert_instance, params: {
-        "project" => "my-project",
-        "zone" => "my-zone",
-        "template" => "my-unpublish-template"
-      }).with_json('{ "id": "42" }')
-    end
-
-    it "enables user to delete a project piece" do
-      visit "/projects"
-
-      click_link "My Project"
-
-      accept_confirm { click_link "Delete" }
-
-      expect(page).to have_text("Project is being deleted. It will take a few minutes before all the published resources are deleted.")
-      expect(page).to have_current_path("/projects")
-      expect(page).not_to have_link("My Project")
     end
   end
 end

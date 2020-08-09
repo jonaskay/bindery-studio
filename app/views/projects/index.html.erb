@@ -1,6 +1,24 @@
 <%= link_to "Add Project", new_project_url %>
-<ul>
-  <% @projects.each do |project| %>
-    <li><%= link_to project.title, edit_project_path(project) %></li>
-  <% end %>
-</ul>
+<table>
+  <thead>
+    <tr>
+      <th>Project</th>
+      <th>Project ID</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @projects.each do |project| %>
+      <tr id="project_<%= project.id %>">
+        <% if project.discarded? %>
+          <td><%= project.title %></td>
+          <td><%= project.name %></td>
+        <% else %>
+          <td><%= link_to project.title, edit_project_path(project) %></td>
+          <td><%= link_to project.name, edit_project_path(project) %></td>
+        <% end %>
+        <td><%= project.status %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

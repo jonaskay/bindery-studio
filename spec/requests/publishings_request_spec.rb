@@ -1,5 +1,6 @@
 require 'rails_helper'
 require 'support/googleapis'
+require 'support/examples/request_examples'
 
 RSpec.describe "Publishings", type: :request do
   include Googleapis
@@ -19,25 +20,27 @@ RSpec.describe "Publishings", type: :request do
     let(:other_user) { create(:user, :confirmed) }
     let(:project) { create(:project, user: user) }
 
+    subject { post "/projects/#{project.name}/publish" }
+
     context "when logged in as valid user" do
       before do
         sign_in user
       end
 
-      context "when project is unpublished" do
+      context "when project is hidden" do
         it "redirects to /projects/:name/edit with notice" do
-          post "/projects/#{project.name}/publish"
+          subject
 
           expect(response).to redirect_to("/projects/#{project.name}/edit")
           expect(flash[:notice]).not_to be_empty
         end
       end
 
-      context "when project is published" do
-        let(:project) { create(:project, :published, user: user) }
+      context "when project is released" do
+        let(:project) { create(:project, :released, user: user) }
 
         it "redirects to /projects/:name/edit with alert" do
-          post "/projects/#{project.name}/publish"
+          subject
 
           expect(response).to redirect_to("/projects/#{project.name}/edit")
           expect(flash[:alert]).not_to be_empty
@@ -50,19 +53,11 @@ RSpec.describe "Publishings", type: :request do
         sign_in other_user
       end
 
-      it "raises a routing error" do
-        expect {
-          post "/projects/#{project.name}/publish"
-        }.to raise_error(ActionController::RoutingError)
-      end
+      include_examples "failed routing"
     end
 
     context "when logged out" do
-      it "redirects to /users/sign_in" do
-        post "/projects/#{project.name}/publish"
-
-        expect(response).to redirect_to("/users/sign_in")
-      end
+      include_examples "failed authentication"
     end
   end
 end

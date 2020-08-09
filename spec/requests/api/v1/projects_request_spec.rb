@@ -7,8 +7,8 @@ RSpec.describe "Api::V1::Projects", type: :request do
     describe "response" do
       subject { response }
 
-      context "when project is published" do
-        let(:project) { create(:project, :published, name: "foo", title: "bar") }
+      context "when project is released" do
+        let(:project) { create(:project, :released, name: "foo", title: "bar") }
 
         it { is_expected.to have_http_status(:success) }
 
@@ -30,7 +30,7 @@ RSpec.describe "Api::V1::Projects", type: :request do
         end
       end
 
-      context "when project is not published" do
+      context "when project is not released" do
         let(:project) { create(:project) }
 
         it { is_expected.to have_http_status(:not_found) }

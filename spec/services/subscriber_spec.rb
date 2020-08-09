@@ -36,7 +36,7 @@ RSpec.describe Subscriber, type: :model do
       include_context "valid message"
 
       context "when project exists" do
-        let!(:project) { create(:project, :published, id: "13371337-1337-1337-1337-133713371337") }
+        let!(:project) { create(:project, id: "13371337-1337-1337-1337-133713371337") }
 
         it "updates project to deployed" do
           expect { subject }.to change { project.reload.deployed? }.to(true)
