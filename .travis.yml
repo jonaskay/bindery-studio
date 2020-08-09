@@ -17,9 +17,6 @@ env:
     - CLOUDSDK_CORE_DISABLE_PROMPTS=1
     - GOOGLE_APPLICATION_CREDENTIALS=service-account-travis-ci.json
     - GOOGLE_CLOUD_PROJECT=august-strata-281417
-    - SMTP_ADDRESS=smtp.eu.mailgun.org
-    - SMTP_PORT=587
-    - SMTP_USERNAME=postmaster@mg.bindery.app
 before_install:
   - openssl aes-256-cbc -K $encrypted_9f3b5599b056_key -iv $encrypted_9f3b5599b056_iv -in service-account-travis-ci.json.enc -out service-account-travis-ci.json -d
   - if [ ! -d ${HOME}/google-cloud-sdk/bin ]; then
