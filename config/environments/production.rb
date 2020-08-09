@@ -62,10 +62,10 @@ Rails.application.configure do
 
   config.action_mailer.delivery_method = :smtp
   config.action_mailer.smtp_settings = {
-    address: Rails.application.credentials.smtp[:address],
-    port: Rails.application.credentials.smtp[:port],
-    user_name: Rails.application.credentials.smtp[:username],
-    password: Rails.application.credentials.smtp[:password]
+    address: ENV.fetch("SMTP_ADDRESS"),
+    port: ENV.fetch("SMTP_PORT"),
+    user_name: ENV.fetch("SMTP_USERNAME"),
+    password: Rails.application.credentials.mailgun[:password]
   }
 
   # Ignore bad email addresses and do not raise email delivery errors.

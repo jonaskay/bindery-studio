@@ -10,3 +10,7 @@ env_variables:
   GOOGLE_CLOUD_PROJECT: august-strata-281417
   PUBSUB_CLEANER_TOPIC: cleaner-topic
   RAILS_ENV: production
+  SMTP_ADDRESS: smtp.eu.mailgun.org
+  SMTP_FROM: noreply@bindery.app
+  SMTP_PORT: 587
+  SMTP_USERNAME: postmaster@mg.bindery.app
