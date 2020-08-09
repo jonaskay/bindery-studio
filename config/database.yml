@@ -84,6 +84,6 @@ test:
 production:
   <<: *default
   database: <%= ENV.fetch("DATABASE_NAME") { "app_production" } %>
-  host: <%= ENV.fetch("DATABASE_HOST") %>
+  host: <%= ENV["DATABASE_HOST"] %>
   username: <%= ENV.fetch("DATABASE_USERNAME") { "postgres" } %>
   password: <%= Rails.application.credentials.db&.fetch(:password) %>
