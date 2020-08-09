@@ -1,24 +1,22 @@
-# README
+# bindery-studio
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+## Requirements
 
-Things you may want to cover:
+* [Docker Engine](https://docs.docker.com/engine/install/)
+* [Docker Compose](https://docs.docker.com/compose/install/)
 
-* Ruby version
+## Development
 
-* System dependencies
+To start the app locally, run
 
-* Configuration
+    $ docker-compose up
 
-* Database creation
+To create the database and run migrations, run
 
-* Database initialization
+    $ docker-compose run --rm app bin/rails db:prepare
 
-* How to run the test suite
+## Tests
 
-* Services (job queues, cache servers, search engines, etc.)
+To run tests in watch mode using guard, run
 
-* Deployment instructions
-
-* ...
+    $ docker-compose run --use-aliases --rm test bundle exec guard
