@@ -5,6 +5,7 @@
       <th>Project</th>
       <th>Project ID</th>
       <th>Status</th>
+      <th>Errors</th>
     </tr>
   </thead>
   <tbody>
@@ -18,6 +19,13 @@
           <td><%= link_to project.name, edit_project_path(project) %></td>
         <% end %>
         <td><%= project.status %></td>
+        <td>
+          <ul>
+            <% project.messages.error.each do |message| %>
+              <%= content_tag :li, message.detail %>
+            <% end %>
+          </ul>
+        </td>
       </tr>
     <% end %>
   </tbody>

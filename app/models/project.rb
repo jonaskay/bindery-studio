@@ -8,6 +8,8 @@ class Project < ApplicationRecord
 
   scope :revealed, -> { kept.where.not(released_at: nil) }
 
+  has_many :messages, dependent: :destroy
+
   belongs_to :user
 
   attr_readonly :name

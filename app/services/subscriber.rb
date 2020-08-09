@@ -6,6 +6,14 @@ class Subscriber
     message = subscriber.message
     project = subscriber.project
 
+    unless message.error_data.empty?
+      message.error_data.each do |error_item|
+        project.messages.create(name: :error, detail: error_item.message)
+      end
+
+      return false
+    end
+
     project.confirm_deployment(message.timestamp)
   end
 
