@@ -1,8 +1,8 @@
 require 'rails_helper'
-require 'support/googleapis'
+require 'support/helpers/googleapis_helper'
 
 RSpec.describe Publisher, type: :model do
-  include Googleapis
+  include GoogleapisHelper
 
   describe ".publish" do
     before do

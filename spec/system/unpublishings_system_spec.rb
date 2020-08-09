@@ -1,12 +1,13 @@
 require "rails_helper"
-require "support/googleapis"
+require "support/helpers/googleapis_helper"
+require "support/helpers/selector_helper"
 
 RSpec.describe "Project unpublishing", type: :system, js: true do
-  include Googleapis
+  include GoogleapisHelper
+  include SelectorHelper
 
   let(:user) { create(:user, :confirmed) }
-  let(:project_row) { "tr#project_#{project.id}" }
-  let!(:project) { create(:project, :published, user: user, title: "My Project", name: "my-project") }
+  let!(:project) { create(:project, :published, user: user, name: "my-project", title: "My Project") }
 
   before do
     cleaner = class_double("Cleaner").as_stubbed_const
@@ -20,7 +21,7 @@ RSpec.describe "Project unpublishing", type: :system, js: true do
   it "enables user to delete a project" do
     visit "/projects"
 
-    within(project_row) do
+    within(project_row(project)) do
       expect(page).to have_link("My Project")
       expect(page).to have_text("Published")
     end
@@ -32,7 +33,7 @@ RSpec.describe "Project unpublishing", type: :system, js: true do
     expect(page).to have_text("Project is being deleted. It will take a few minutes before all the published resources are deleted.")
     expect(page).to have_current_path("/projects")
 
-    within(project_row) do
+    within(project_row(project)) do
       expect(page).to have_text("My Project")
       expect(page).to have_text("Deleting")
       expect(page).not_to have_link("My Project")

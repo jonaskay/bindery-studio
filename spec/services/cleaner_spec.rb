@@ -1,8 +1,8 @@
 require "rails_helper"
-require "support/googleapis"
+require "support/helpers/googleapis_helper"
 
 RSpec.describe Cleaner, type: :model do
-  include Googleapis
+  include GoogleapisHelper
 
   describe ".clean" do
     let(:message) { instance_double("Google::Cloud::PubSub::Message") }

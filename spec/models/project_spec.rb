@@ -1,5 +1,19 @@
 require "rails_helper"
 
+RSpec.shared_examples "successful publish" do
+  it { is_expected.to be true }
+
+  it "updates released_at" do
+    expect { subject }.to change { project.reload.released_at }
+  end
+
+  it "calls publisher" do
+    expect(publisher).to receive(:publish)
+
+    subject
+  end
+end
+
 RSpec.shared_examples "skipped publish" do
   it { is_expected.to be false }
 
@@ -152,7 +166,7 @@ RSpec.describe Project, type: :model do
 
     subject { project.url }
 
-    it { is_expected.to eq("http://www.example.com/foo/index.html") }
+    it { is_expected.to eq "http://www.example.com/foo/index.html" }
   end
 
   describe "#hidden?" do
@@ -225,50 +239,126 @@ RSpec.describe Project, type: :model do
     end
   end
 
+  describe "#errored?" do
+    subject { project.errored? }
+
+    context "when released? is true" do
+      let(:project) { create(:project, :released) }
+
+      context "when error messages are empty" do
+        before { create(:project_message, :success, project: project, created_at: 1.hour.since) }
+
+        it { is_expected.to be false }
+      end
+
+      context "when latest error message created_at is less than released_at" do
+        before { create(:project_message, :error, project: project, created_at: 1.hour.ago) }
+
+        it { is_expected.to be false }
+      end
+
+      context "when latest error message created_at is equal to released_at" do
+        before { create(:project_message, :error, project: project, created_at: project.released_at) }
+
+        it { is_expected.to be false }
+      end
+
+      context "when latest error message created_at is greater than released_at" do
+        before { create(:project_message, :error, project: project, created_at: 1.hour.since) }
+
+        it { is_expected.to be true }
+      end
+    end
+
+    context "when released? is false" do
+      let(:project) { create(:project) }
+
+      context "when error messages are empty" do
+        before { create(:project_message, :success, project: project, created_at: 1.hour.since) }
+
+        it { is_expected.to be false }
+      end
+
+      context "when latest error message created_at is less than released_at" do
+        before { create(:project_message, :error, project: project, created_at: 1.hour.ago) }
+
+        it { is_expected.to be false }
+      end
+
+      context "when latest error message created_at is equal to released_at" do
+        before { create(:project_message, :error, project: project, created_at: project.released_at) }
+
+        it { is_expected.to be false }
+      end
+
+      context "when latest error message created_at is greater than released_at" do
+        before { create(:project_message, :error, project: project, created_at: 1.hour.since) }
+
+        it { is_expected.to be false }
+      end
+    end
+  end
+
   describe "#status" do
     subject { project.status }
 
     context "when released? is true" do
       context "when deployed? is true" do
         context "when discarded? is true" do
-          let(:project) { build(:project, :released, :deployed, :discarded) }
+          let(:project) { create(:project, :released, :deployed, :discarded) }
 
-          it { is_expected.to eq("Deleting") }
+          it { is_expected.to eq "Deleting" }
         end
 
         context "when discarded? is false" do
-          let(:project) { build(:project, :released, :deployed) }
+          let(:project) { create(:project, :released, :deployed) }
 
-          it { is_expected.to eq("Published") }
+          it { is_expected.to eq "Published" }
         end
       end
 
       context "when deployed? is false" do
         context "when discarded? is true" do
-          let(:project) { build(:project, :released, :discarded) }
+          context "when errored? is true" do
+            let(:project) { create(:project, :released, :discarded, :errored) }
 
-          it { is_expected.to eq("Deleting") }
+            it { is_expected.to eq "Deleting" }
+          end
+
+          context "when errored? is false" do
+            let(:project) { create(:project, :released, :discarded) }
+
+            it { is_expected.to eq "Deleting" }
+          end
         end
 
         context "when discarded? is false" do
-          let(:project) { build(:project, :released) }
+          context "when errored? is true" do
+            let(:project) { create(:project, :released, :errored) }
 
-          it { is_expected.to eq("Publishing") }
+            it { is_expected.to eq "Error" }
+          end
+
+          context "when errored? is false" do
+            let(:project) { create(:project, :released) }
+
+            it { is_expected.to eq "Publishing" }
+          end
         end
       end
     end
 
     context "when hidden? is true" do
       context "when discarded? is true" do
-        let(:project) { build(:project, :discarded) }
+        let(:project) { create(:project, :discarded) }
 
-        it { is_expected.to eq("Deleting") }
+        it { is_expected.to eq "Deleting" }
       end
 
       context "when discarded? is false" do
-        let(:project) { build(:project) }
+        let(:project) { create(:project) }
 
-        it { is_expected.to eq("Unpublished") }
+        it { is_expected.to eq "Unpublished" }
       end
     end
   end
@@ -280,20 +370,10 @@ RSpec.describe Project, type: :model do
 
     subject { project.publish }
 
-    context "when released_at is nil and discarded? is false" do
-      let(:project) { create(:project, released_at: nil) }
+    context "when released_at? is false and discarded? is false" do
+      let(:project) { create(:project) }
 
-      it { is_expected.to be true }
-
-      it "updates released_at" do
-        expect { subject }.to change { project.reload.released_at }
-      end
-
-      it "calls publisher" do
-        expect(publisher).to receive(:publish)
-
-        subject
-      end
+      include_examples "successful publish"
     end
 
     context "when discarded? is true" do
@@ -302,10 +382,18 @@ RSpec.describe Project, type: :model do
       include_examples "skipped publish"
     end
 
-    context "when released_at is not nil" do
-      let(:project) { create(:project, released_at: Time.current) }
+    context "when released_at? is true" do
+      context "when errored? is true" do
+        let(:project) { create(:project, :released, :errored) }
 
-      include_examples "skipped publish"
+        include_examples "successful publish"
+      end
+
+      context "when errored? is false" do
+        let(:project) { create(:project, :released) }
+
+        include_examples "skipped publish"
+      end
     end
   end
 

@@ -20,5 +20,9 @@ FactoryBot.define do
     trait :discarded do
       discarded_at { Time.current }
     end
+
+    trait :errored do
+      after(:create) { |project| create(:project_message, :error, project: project) }
+    end
   end
 end

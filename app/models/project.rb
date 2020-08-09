@@ -46,13 +46,19 @@ class Project < ApplicationRecord
     released? && deployed?
   end
 
+  def errored?
+    released? && messages.error.any? && released_at < messages.last.created_at
+  end
+
   def status
     attribute = if discarded?
                   :deleting
                 elsif hidden?
                   :unpublished
                 elsif released?
-                  if deployed?
+                  if errored?
+                    :error
+                  elsif deployed?
                     :published
                   else
                     :publishing
@@ -65,7 +71,7 @@ class Project < ApplicationRecord
   end
 
   def publish
-    return false if released? || discarded?
+    return false if discarded? || released? && !errored?
 
     Publisher.publish(self)
     update!(released_at: Time.current)

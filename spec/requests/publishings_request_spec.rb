@@ -1,9 +1,9 @@
 require 'rails_helper'
-require 'support/googleapis'
+require 'support/helpers/googleapis_helper'
 require 'support/examples/request_examples'
 
 RSpec.describe "Publishings", type: :request do
-  include Googleapis
+  include GoogleapisHelper
 
   before do
     handle_oauth_request

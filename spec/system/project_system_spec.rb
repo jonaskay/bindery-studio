@@ -1,8 +1,8 @@
 require "rails_helper"
-require "support/googleapis"
+require "support/helpers/googleapis_helper"
 
 RSpec.describe "Project management", type: :system do
-  include Googleapis
+  include GoogleapisHelper
 
   let(:user) { create(:user, :confirmed) }
 

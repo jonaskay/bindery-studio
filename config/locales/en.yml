@@ -36,6 +36,7 @@ en:
         name: "Project ID"
         statuses:
           deleting: "Deleting"
+          error: "Error"
           published: "Published"
           publishing: "Publishing"
           unpublished: "Unpublished"

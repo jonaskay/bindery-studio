@@ -1,4 +1,4 @@
-module Googleapis
+module GoogleapisHelper
   def handle_oauth_request
     Stub.new(:oauth).with_json(
       '{ "access_token": "foo", "expires_in": 3599, "token_type": "Bearer" }'

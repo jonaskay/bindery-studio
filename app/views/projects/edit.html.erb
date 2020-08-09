@@ -9,9 +9,16 @@
   <% if @project.deployed? %>
     <%= link_to "Visit site", @project.url %>
   <% else %>
-    <span>Publishing...</span>
+    <% if @project.errored? %>
+      <%= publish_link(@project) %>
+      <p>
+        Publishing the project failed. Click Publish to try again.
+      </p>
+    <% else %>
+      <span>Publishing...</span>
+    <% end %>
   <% end %>
 <% else %>
-  <%= link_to "Publish", project_publishings_url(@project), method: :post %>
+  <%= publish_link(@project) %>
 <% end %>
 <%= link_to "Delete", project_url(@project), method: :delete, data: { confirm: "Are you sure?" } %>
