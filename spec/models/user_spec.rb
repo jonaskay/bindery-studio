@@ -9,6 +9,7 @@ RSpec.describe User, type: :model do
 
   context "when user is destroyed" do
     let(:user) { create(:user) }
+
     before { create(:project, user: user) }
 
     subject { user.destroy }
