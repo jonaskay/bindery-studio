@@ -9,6 +9,7 @@ class Project < ApplicationRecord
   scope :revealed, -> { kept.where.not(released_at: nil) }
 
   has_many :messages, dependent: :destroy
+  has_many :deployments, dependent: :destroy
 
   belongs_to :user
 

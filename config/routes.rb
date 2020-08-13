@@ -10,6 +10,14 @@ Rails.application.routes.draw do
     resources :publishings, path: 'publish', only: :create
   end
 
+  namespace :tasks do
+    resources :deployments, only: [] do
+      collection do
+        get "check"
+      end
+    end
+  end
+
   namespace :pubsub do
     namespace :deploy do
       post "/", to: "messages#create"

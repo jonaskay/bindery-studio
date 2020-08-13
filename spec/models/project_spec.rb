@@ -570,12 +570,18 @@ RSpec.describe Project, type: :model do
   context "when project is destroyed" do
     let(:project) { create(:project) }
 
-    before { create(:project_message, project: project) }
-
     subject { project.destroy }
 
     it "destroys any messages" do
+      create(:project_message, project: project)
+
       expect { subject }.to change { Project::Message.count }.by(-1)
+    end
+
+    it "destroys any deployments" do
+      create(:deployment, project: project)
+
+      expect { subject }.to change { Deployment.count }.by(-1)
     end
   end
 end
