@@ -12,7 +12,7 @@ RSpec.describe Publisher, type: :model do
     it "calls ComputeEngine.insert_instance" do
       expect(compute_engine).to(
         receive(:insert_instance).with(
-          "my-compositor-template-13371337-1337-1337-1337-133713371337",
+          "compositor-13371337-1337-1337-1337-133713371337",
           "my-compositor-template"
         )
       )

@@ -3,7 +3,7 @@ class Publisher
 
   def self.publish(project)
     instance_template = ENV.fetch("COMPUTE_COMPOSITOR_TEMPLATE")
-    instance = "#{instance_template}-#{project.id}"
+    instance = "compositor-#{project.id}"
 
     ComputeEngine.insert_instance(instance, instance_template)
     project.deployments.create!(instance: instance)
