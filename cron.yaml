@@ -1,4 +1,4 @@
 cron:
-- description: "hourly deployments health check"
+- description: "Hourly deployments health check"
   url: /tasks/deployments/check
   schedule: every 1 hours
