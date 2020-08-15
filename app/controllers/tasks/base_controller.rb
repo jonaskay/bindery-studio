@@ -6,7 +6,7 @@ class Tasks::BaseController < ActionController::API
 
   def validate_headers!
     cron = request.headers["X-Appengine-Cron"]
-    head :bad_request if cron != true
+    head :bad_request unless cron || cron == "true"
   end
 
   def validate_client!
