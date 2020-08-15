@@ -10,9 +10,14 @@ class Tasks::BaseController < ActionController::API
   end
 
   def validate_client!
-    ip = request.remote_ip
-    logger.debug("Remote IP: #{ip}")
-    logger.debug("X-Forwarded-For: #{request.env["HTTP_X_FORWARDED_FOR"]}")
-    head :forbidden if ip != "10.0.0.1"
+    head :forbidden if origin_ip != "0.1.0.1"
+  end
+
+  def origin_ip
+    if origin = request.env["HTTP_X_FORWARDED_FOR"]
+      return origin.match(/^([\d\.]+)/)[1]
+    end
+
+    request.remote_ip
   end
 end

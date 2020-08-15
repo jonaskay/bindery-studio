@@ -11,7 +11,7 @@ RSpec.describe "Tasks::Deployments", type: :request do
         let(:headers) { { "X-Appengine-Cron": true } }
 
         context "when client IP is valid" do
-          let(:env) { { "REMOTE_ADDR": "10.0.0.1" } }
+          let(:env) { { "HTTP_X_FORWARDED_FOR": "0.1.0.1" } }
 
           it { is_expected.to have_http_status(:success) }
         end
