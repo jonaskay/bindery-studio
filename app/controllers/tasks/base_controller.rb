@@ -11,6 +11,7 @@ class Tasks::BaseController < ActionController::API
 
   def validate_client!
     ip = request.remote_ip
+    logger.debug("Remote IP: #{ip}")
     head :forbidden if ip != "10.0.0.1"
   end
 end
