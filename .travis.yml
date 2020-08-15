@@ -42,9 +42,7 @@ before_deploy:
   - bundle exec rake appengine:exec -- bin/rails db:prepare
 deploy:
   provider: script
-  script:
-    - gcloud -q app deploy app.yaml --promote
-    - gcloud -q app deploy cron.yaml
+  script: ./bin/deploy
   skip_cleanup: true
   on:
     branch: master

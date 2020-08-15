@@ -1,0 +1,3 @@
+#!/bin/bash
+gcloud -q app deploy cron.yaml
+gcloud -q app deploy app.yaml --promote
