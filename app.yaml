@@ -3,7 +3,7 @@ entrypoint: bundle exec foreman start
 instance_class: F2
 env_variables:
   BASE_URL: https://studio.bindery.app
-  COMPUTE_COMPOSITOR_TEMPLATE: compositor-debug
+  COMPUTE_COMPOSITOR_TEMPLATE: compositor
   COMPUTE_ZONE: europe-west1-b
   DATABASE_HOST: /cloudsql/august-strata-281417:europe-west1:shampoo-abruptly-evaporate
   DATABASE_NAME: studio_production
