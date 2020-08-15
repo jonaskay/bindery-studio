@@ -5,7 +5,6 @@ class CreateProjects < ActiveRecord::Migration[6.0]
       t.string :name, null: false
       t.string :title
       t.datetime :released_at
-      t.datetime :deployed_at
       t.datetime :discarded_at
 
       t.timestamps

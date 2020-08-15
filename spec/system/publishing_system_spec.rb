@@ -2,25 +2,6 @@ require "rails_helper"
 require "support/helpers/googleapis_helper"
 require "support/helpers/selector_helper"
 
-RSpec.shared_examples "successful republish" do
-  it "enables user to republish the project" do
-    visit "/projects"
-
-    within(project_row(project)) do
-      expect(page).to have_text("Error")
-
-      click_link "My Project"
-    end
-
-    expect(page).to have_text("Publishing the project failed. Click Publish to try again.")
-
-    click_link "Publish"
-
-    expect(page).to have_text("Project is being published. This process will take a few minutes.")
-    expect(page).not_to have_text("Publishing the project failed. Click Publish to try again.")
-  end
-end
-
 RSpec.describe "Project publishing", type: :system do
   include GoogleapisHelper
   include SelectorHelper
@@ -56,7 +37,7 @@ RSpec.describe "Project publishing", type: :system do
       expect(page).not_to have_link("Visit site")
       expect(page).not_to have_link("Publish")
 
-      project.update_attribute(:deployed_at, Time.current)
+      project.current_deployment.update_attribute(:finished_at, Time.current)
 
       visit "/projects/my-project/edit"
 
@@ -64,17 +45,26 @@ RSpec.describe "Project publishing", type: :system do
     end
   end
 
-  context "when project publishing has errored" do
+  context "when project publishing has failed" do
     let(:project) { create(:project, :released, user: user, name: "my-project", title: "My Project") }
 
-    before { create(:project_message, :error, project: project, detail: "Lorem ipsum") }
+    before { create(:deployment, :failed, project: project) }
 
-    include_examples "successful republish"
-  end
+    it "enables user to republish the project" do
+      visit "/projects"
 
-  context "when project publishing has timed-out" do
-    let!(:project) { create(:project, user: user, name: "my-project", title: "My Project", released_at: 1.hour.ago) }
+      within(project_row(project)) do
+        expect(page).to have_text("Error")
 
-    include_examples "successful republish"
+        click_link "My Project"
+      end
+
+      expect(page).to have_text("Publishing the project failed. Click Publish to try again.")
+
+      click_link "Publish"
+
+      expect(page).to have_text("Project is being published. This process will take a few minutes.")
+      expect(page).not_to have_text("Publishing the project failed. Click Publish to try again.")
+    end
   end
 end

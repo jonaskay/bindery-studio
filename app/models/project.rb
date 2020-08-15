@@ -8,7 +8,6 @@ class Project < ApplicationRecord
 
   scope :revealed, -> { kept.where.not(released_at: nil) }
 
-  has_many :messages, dependent: :destroy
   has_many :deployments, dependent: :destroy
 
   belongs_to :user
@@ -40,7 +39,9 @@ class Project < ApplicationRecord
   end
 
   def deployed?
-    !deployed_at.nil?
+    return false if deployments.empty?
+
+    deployments.finished.any?
   end
 
   def published?
@@ -48,20 +49,17 @@ class Project < ApplicationRecord
   end
 
   def deployment_failed?
-    deployment_errored? || deployment_timed_out?
+    !current_deployment.nil? && current_deployment.failed?
   end
 
-  def deployment_errored?
-    return false if !released? || deployed?
-    return false if messages.error.empty?
+  def deployment_fail_message
+    return nil unless deployment_failed?
 
-    messages.error.last.created_at > released_at
+    current_deployment&.fail_message
   end
 
-  def deployment_timed_out?
-    return false if !released? || deployed?
-
-    released_at < 1.hour.ago
+  def current_deployment
+    deployments.last
   end
 
   def status
@@ -94,10 +92,6 @@ class Project < ApplicationRecord
   def unpublish
     Cleaner.clean(self)
     update!(released_at: nil)
-  end
-
-  def confirm_deployment(timestamp)
-    update_attribute(:deployed_at, timestamp)
   end
 
   def confirm_cleanup

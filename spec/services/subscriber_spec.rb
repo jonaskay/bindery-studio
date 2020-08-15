@@ -8,7 +8,6 @@ RSpec.shared_context "valid message" do |errors|
         name: "foo"
       },
       errors: errors,
-      status: "success",
       timestamp: "1970-01-01T00:00:00.000Z"
     }
   }
@@ -21,7 +20,6 @@ RSpec.shared_context "invalid message" do
         id: "invalid",
         name: "invalid"
       },
-      status: "invalid",
       timestamp: "invalid"
     }
   }
@@ -35,19 +33,24 @@ RSpec.describe Subscriber, type: :model do
 
     context "when message is valid" do
       context "when project exists" do
-        let!(:project) { create(:project, id: "13371337-1337-1337-1337-133713371337") }
+        let(:project) { create(:project, id: "13371337-1337-1337-1337-133713371337") }
+        let!(:deployment) { create(:deployment, project: project) }
 
         context "when message doesn't contain error data" do
           include_context "valid message", []
 
           it { is_expected.to be true }
 
-          it "updates deployed_at" do
-            expect { subject }.to change { project.reload.deployed? }.to(true)
+          it "updates finished_at" do
+            expect { subject }.to change { deployment.reload.finished_at }
           end
 
-          it "doesn't create a project message" do
-            expect { subject }.not_to change { project.messages.count }
+          it "doesn't update failed_at" do
+            expect { subject }.not_to change { deployment.reload.failed_at }
+          end
+
+          it "doesn't update fail_message" do
+            expect { subject }.not_to change { deployment.reload.fail_message }
           end
         end
 
@@ -56,12 +59,16 @@ RSpec.describe Subscriber, type: :model do
 
           it { is_expected.to be false }
 
-          it "doesn't update deployed_at" do
-            expect { subject }.not_to change { project.reload.deployed? }
+          it "doesn't update finished_at" do
+            expect { subject }.not_to change { deployment.reload.finished_at }
           end
 
-          it "creates a project message" do
-            expect { subject }.to change { project.messages.count }.by(1)
+          it "updates failed_at" do
+            expect { subject }.to change { deployment.reload.failed_at }
+          end
+
+          it "updates fail_message" do
+            expect { subject }.to change { deployment.reload.fail_message }
           end
         end
       end

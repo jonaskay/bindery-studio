@@ -1,25 +1,32 @@
 class Deployment < ApplicationRecord
-  scope :pending, -> { where(finished_at: nil, errored_at: nil) }
+  self.implicit_order_column = "created_at"
+
+  scope :pending, -> { where(finished_at: nil, failed_at: nil) }
+  scope :finished, -> { where.not(finished_at: nil) }
 
   belongs_to :project
 
   validates :instance, presence: true
 
   def pending?
-    !finished? && !errored?
+    !finished? && !failed?
   end
 
   def finished?
     !finished_at.nil?
   end
 
-  def errored?
-    !errored_at.nil?
+  def failed?
+    !failed_at.nil?
   end
 
-  def handle_failure(message)
+  def handle_success(timestamp = Time.current)
+    update!(finished_at: timestamp)
+  end
+
+  def handle_failure(message, timestamp = Time.current)
     return false unless pending?
 
-    update!(errored_at: Time.current, error_message: message)
+    update!(failed_at: timestamp, fail_message: message)
   end
 end

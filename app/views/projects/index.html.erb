@@ -20,11 +20,9 @@
         <% end %>
         <td><%= project.status %></td>
         <td>
-          <ul>
-            <% project.messages.error.each do |message| %>
-              <%= content_tag :li, message.detail %>
-            <% end %>
-          </ul>
+          <% if project.deployment_failed? %>
+            <%= project.deployment_fail_message %>
+          <% end %>
         </td>
       </tr>
     <% end %>

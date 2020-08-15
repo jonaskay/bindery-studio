@@ -4,8 +4,8 @@ class CreateDeployments < ActiveRecord::Migration[6.0]
       t.references :project, type: :uuid, null: false, foreign_key: true
       t.string :instance
       t.datetime :finished_at
-      t.datetime :errored_at
-      t.text :error_message
+      t.datetime :failed_at
+      t.string :fail_message
 
       t.timestamps
     end

@@ -1,5 +1,13 @@
 require "rails_helper"
 
+RSpec.shared_context "with finished deployment" do
+  before { create(:deployment, :finished, project: project) }
+end
+
+RSpec.shared_examples "with failed deployment" do
+  before { create(:deployment, :failed, project: project) }
+end
+
 RSpec.shared_examples "successful publish" do
   it { is_expected.to be true }
 
@@ -202,18 +210,56 @@ RSpec.describe Project, type: :model do
   end
 
   describe "#deployed?" do
+    let(:project) { create(:project) }
+
     subject { project.deployed? }
 
-    context "when deployed_at is nil" do
-      let(:project) { create(:project, deployed_at: nil) }
-
+    context "when there are no deployments" do
       it { is_expected.to be false }
     end
 
-    context "when deployed_at is not nil" do
-      let(:project) { create(:project, deployed_at: Time.current) }
+    context "when there is one deployment" do
+      context "when deployment has finished" do
+        include_context "with finished deployment"
 
-      it { is_expected.to be true }
+        it { is_expected.to be true }
+      end
+
+      context "when deployment has failed" do
+        include_context "with failed deployment"
+
+        it { is_expected.to be false }
+      end
+    end
+
+    context "when there are two deployments" do
+      context "when both deployments have finished" do
+        include_context "with finished deployment"
+        include_context "with finished deployment"
+
+        it { is_expected.to be true }
+      end
+
+      context "when both deployments have failed" do
+        include_context "with failed deployment"
+        include_context "with failed deployment"
+
+        it { is_expected.to be false }
+      end
+
+      context "when first deployment has finished and second deployment failed" do
+        include_context "with finished deployment"
+        include_context "with failed deployment"
+
+        it { is_expected.to be true }
+      end
+
+      context "when first deployment has failed and second deployment finished" do
+        include_context "with failed deployment"
+        include_context "with finished deployment"
+
+        it { is_expected.to be true }
+      end
     end
   end
 
@@ -240,155 +286,84 @@ RSpec.describe Project, type: :model do
   end
 
   describe "#deployment_failed?" do
+    let(:project) { create(:project) }
+
     subject { project.deployment_failed? }
 
-    context "when deployment_timed_out? is true" do
-      context "when deployment_errored? is true" do
-        let(:project) { create(:project, :deployment_timed_out, :deployment_errored) }
+    context "when there are no deployments" do
+      it { is_expected.to be false }
+    end
 
-        it { is_expected.to be true }
+    context "when there is one deployment" do
+      context "when deployment has finished" do
+        include_context "with finished deployment"
+
+        it { is_expected.to be false }
       end
 
-      context "when deployment_errored? is false" do
-        let(:project) { create(:project, :deployment_timed_out) }
+      context "when deployment has failed" do
+        include_context "with failed deployment"
 
         it { is_expected.to be true }
       end
     end
 
-    context "when deployment_timed_out? is false" do
-      context "when deployment_errored? is true" do
-        let(:project) { create(:project, :released, :deployment_errored) }
+    context "when there are two deployments" do
+      context "when both deployments have finished" do
+        include_context "with finished deployment"
+        include_context "with finished deployment"
+
+        it { is_expected.to be false }
+      end
+
+      context "when both deployments have failed" do
+        include_context "with failed deployment"
+        include_context "with failed deployment"
 
         it { is_expected.to be true }
       end
 
-      context "when deployment_errored? is false" do
-        let(:project) { create(:project, :released) }
+      context "when first deployment has finished and second deployment failed" do
+        include_context "with finished deployment"
+        include_context "with failed deployment"
+
+        it { is_expected.to be true }
+      end
+
+      context "when first deployment has failed and second deployment finished" do
+        include_context "with failed deployment"
+        include_context "with finished deployment"
 
         it { is_expected.to be false }
       end
     end
   end
 
-  describe "#deployment_errored?" do
-    subject { project.deployment_errored? }
+  describe "#deployment_fail_message" do
+    subject { project.deployment_fail_message }
 
-    context "when released? is true" do
-      let(:project) { create(:project, :released) }
+    context "when deployment_failed? is true" do
+      let(:project) { create(:project, :deployment_failed) }
 
-      context "when error messages are empty" do
-        before { create(:project_message, :success, project: project, created_at: 1.hour.since) }
-
-        it { is_expected.to be false }
-      end
-
-      context "when latest error message created_at is less than released_at" do
-        before { create(:project_message, :error, project: project, created_at: 1.hour.ago) }
-
-        it { is_expected.to be false }
-      end
-
-      context "when latest error message created_at is equal to released_at" do
-        before { create(:project_message, :error, project: project, created_at: project.released_at) }
-
-        it { is_expected.to be false }
-      end
-
-      context "when latest error message created_at is greater than released_at" do
-        before { create(:project_message, :error, project: project, created_at: 1.hour.since) }
-
-        context "when deployed? is true" do
-          let(:project) { create(:project, :released, :deployed) }
-
-          it { is_expected.to be false }
-        end
-
-        context "when deployed? is false" do
-          it { is_expected.to be true }
-        end
-      end
+      it { is_expected.to eq "fail" }
     end
 
-    context "when released? is false" do
+    context "when deployment_failed? is false" do
       let(:project) { create(:project) }
 
-      context "when error messages are empty" do
-        before { create(:project_message, :success, project: project, created_at: 1.hour.since) }
-
-        it { is_expected.to be false }
-      end
-
-      context "when latest error message created_at is less than released_at" do
-        before { create(:project_message, :error, project: project, created_at: 1.hour.ago) }
-
-        it { is_expected.to be false }
-      end
-
-      context "when latest error message created_at is equal to released_at" do
-        before { create(:project_message, :error, project: project, created_at: project.released_at) }
-
-        it { is_expected.to be false }
-      end
-
-      context "when latest error message created_at is greater than released_at" do
-        before { create(:project_message, :error, project: project, created_at: 1.hour.since) }
-
-        it { is_expected.to be false }
-      end
+      it { is_expected.to be_nil }
     end
   end
 
-  describe "#deployment_timed_out?" do
-    subject { project.deployment_timed_out? }
+  describe "#current_deployment" do
+    let(:project) { create(:project) }
+    let!(:first_project) { create(:deployment, project: project, created_at: 2.hours.ago) }
+    let!(:second_project) { create(:deployment, project: project, created_at: 1.hour.ago) }
+    let!(:third_project) { create(:deployment, project: project, created_at: 3.hours.ago) }
 
-    context "when released? is true" do
-      context "when deployed? is true" do
-        let(:project) { create(:project, :deployed, released_at: released_at) }
+    subject { project.current_deployment }
 
-        context "when released_at is less than 1 hour ago" do
-          let(:released_at) { 2.hours.ago }
-
-          it { is_expected.to be false }
-        end
-
-        context "when released_at is greater than 1 hour ago" do
-          let(:released_at) { Time.current }
-
-          it { is_expected.to be false }
-        end
-      end
-
-      context "when deployed? is false" do
-        let(:project) { create(:project, released_at: released_at) }
-
-        context "when released_at is less than 1 hour ago" do
-          let(:released_at) { 2.hours.ago }
-
-          it { is_expected.to be true }
-        end
-
-        context "when released_at is greater than 1 hour ago" do
-          let(:released_at) { Time.current }
-
-          it { is_expected.to be false }
-        end
-      end
-    end
-
-    context "when released? is false" do
-      context "when deployed? is true" do
-        let(:project) { create(:project, :deployed) }
-
-        it { is_expected.to be false }
-      end
-
-      context "when deployed? is false" do
-        let(:project) { create(:project) }
-
-        it { is_expected.to be false }
-      end
-    end
+    it { is_expected.to eq second_project }
   end
 
   describe "#status" do
@@ -497,16 +472,6 @@ RSpec.describe Project, type: :model do
     include_examples "successful unpublish"
   end
 
-  describe "#confirm_deployment" do
-    let(:project) { create(:project) }
-
-    subject { project.confirm_deployment(DateTime.parse("1970-01-01T00:00:00.000Z")) }
-
-    it "updates deployed_at" do
-      expect { subject }.to change { project.reload.deployed_at.to_s }.to("1970-01-01 00:00:00 UTC")
-    end
-  end
-
   describe "#confirm_cleanup" do
     subject { project.confirm_cleanup }
 
@@ -571,12 +536,6 @@ RSpec.describe Project, type: :model do
     let(:project) { create(:project) }
 
     subject { project.destroy }
-
-    it "destroys any messages" do
-      create(:project_message, project: project)
-
-      expect { subject }.to change { Project::Message.count }.by(-1)
-    end
 
     it "destroys any deployments" do
       create(:deployment, project: project)

@@ -1,5 +1,5 @@
 require "rails_helper"
-require "support/examples/request_examples"
+require "support/examples/pubsub_request_examples"
 
 RSpec.describe "Pubsub::Cleanup::Messages", type: :request do
   describe "POST /pubsub/cleanup" do

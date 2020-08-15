@@ -5,16 +5,16 @@ FactoryBot.define do
 
     trait :pending do
       finished_at { nil }
-      errored_at { nil }
+      failed_at { nil }
     end
 
     trait :finished do
       finished_at { Time.current }
     end
 
-    trait :errored do
-      errored_at { Time.current }
-      error_message { "error message" }
+    trait :failed do
+      failed_at { Time.current }
+      fail_message { "fail" }
     end
   end
 end

@@ -1,25 +1,28 @@
 class Subscriber
-  attr_reader :message, :project
+  attr_reader :message
 
   def self.read_from_deploy(encoded_data)
     subscriber = Subscriber.new(encoded_data)
     message = subscriber.message
-    project = subscriber.project
+    timestamp = message.timestamp
+    project = Project.includes(:deployments).find(message.project.id)
+    deployment = project.current_deployment
 
     unless message.error_data.empty?
       message.error_data.each do |error_item|
-        project.messages.create(name: :error, detail: error_item.message)
+        deployment.handle_failure(error_item.message, timestamp)
       end
 
       return false
     end
 
-    project.confirm_deployment(message.timestamp)
+    deployment.handle_success(timestamp)
   end
 
   def self.read_from_cleanup(encoded_data)
     subscriber = Subscriber.new(encoded_data)
-    project = subscriber.project
+    message = subscriber.message
+    project = Project.find(message.project.id)
 
     project.confirm_cleanup
   end
@@ -27,7 +30,5 @@ class Subscriber
   def initialize(encoded_data)
     @message = Pubsub::Message.from_encoded(encoded_data)
     @message.validate!
-
-    @project = Project.find(@message.project.id)
   end
 end

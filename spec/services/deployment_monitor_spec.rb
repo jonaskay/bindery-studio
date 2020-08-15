@@ -1,19 +1,19 @@
 require "rails_helper"
 
 RSpec.shared_examples "no timeout error" do
-  it "doesn't update errored_at" do
-    expect { subject }.not_to change { deployment.reload.errored_at }
+  it "doesn't update failed_at" do
+    expect { subject }.not_to change { deployment.reload.failed_at }
   end
 
-  it "doesn't update error_message" do
-    expect { subject }.not_to change { deployment.reload.error_message }
+  it "doesn't update fail_message" do
+    expect { subject }.not_to change { deployment.reload.fail_message }
   end
 end
 
 RSpec.describe DeploymentMonitor, type: :model do
   describe ".check_healths" do
     let(:finished_deployment) { create(:deployment, :finished) }
-    let(:errored_deployment) { create(:deployment, :errored) }
+    let(:failed_deployment) { create(:deployment, :failed) }
 
     subject { described_class.check_healths }
 
@@ -23,12 +23,12 @@ RSpec.describe DeploymentMonitor, type: :model do
       context "when deployment was created more than an hour ago" do
         let(:pending_deployment) { create(:deployment, :pending, created_at: 1.hour.ago) }
 
-        it "updates errored_at" do
-          expect { subject }.to change { deployment.reload.errored_at }
+        it "updates failed_at" do
+          expect { subject }.to change { deployment.reload.failed_at }
         end
 
-        it "updates error_message" do
-          expect { subject }.to change { deployment.reload.errored_at }
+        it "updates fail_message" do
+          expect { subject }.to change { deployment.reload.failed_at }
         end
       end
 
@@ -45,8 +45,8 @@ RSpec.describe DeploymentMonitor, type: :model do
       include_examples "no timeout error"
     end
 
-    context "when deployment has errored" do
-      let(:deployment) { errored_deployment }
+    context "when deployment has failed" do
+      let(:deployment) { failed_deployment }
 
       include_examples "no timeout error"
     end

@@ -27,13 +27,13 @@ RSpec.describe Deployment, type: :model do
     subject { deployment.pending? }
 
     context "when finished? is true" do
-      context "when errored? is true" do
-        let(:deployment) { build(:deployment, :finished, :errored) }
+      context "when failed? is true" do
+        let(:deployment) { build(:deployment, :finished, :failed) }
 
         it { is_expected.to be false }
       end
 
-      context "when errored? is false" do
+      context "when failed? is false" do
         let(:deployment) { build(:deployment, :finished) }
 
         it { is_expected.to be false }
@@ -41,13 +41,13 @@ RSpec.describe Deployment, type: :model do
     end
 
     context "when finished? is false" do
-      context "when errored? is true" do
-        let(:deployment) { build(:deployment, :errored) }
+      context "when failed? is true" do
+        let(:deployment) { build(:deployment, :failed) }
 
         it { is_expected.to be false }
       end
 
-      context "when errored? is false" do
+      context "when failed? is false" do
         let(:deployment) { build(:deployment) }
 
         it { is_expected.to be true }
@@ -71,19 +71,29 @@ RSpec.describe Deployment, type: :model do
     end
   end
 
-  describe "#errored?" do
-    subject { deployment.errored? }
+  describe "#failed?" do
+    subject { deployment.failed? }
 
-    context "when errored_at is not nil" do
-      let(:deployment) { build(:deployment, errored_at: Time.current) }
+    context "when failed_at is not nil" do
+      let(:deployment) { build(:deployment, failed_at: Time.current) }
 
       it { is_expected.to be true }
     end
 
-    context "when errored_at is nil" do
-      let(:deployment) { build(:deployment, errored_at: nil) }
+    context "when failed_at is nil" do
+      let(:deployment) { build(:deployment, failed_at: nil) }
 
       it { is_expected.to be false }
+    end
+  end
+
+  describe "#handle_success" do
+    let(:deployment) { create(:deployment) }
+
+    subject { deployment.handle_success(DateTime.parse("1970-01-01T00:00:00.000Z")) }
+
+    it "updates finished_at" do
+      expect { subject }.to change { deployment.reload.finished_at.to_s }.to("1970-01-01 00:00:00 UTC")
     end
   end
 
@@ -97,28 +107,28 @@ RSpec.describe Deployment, type: :model do
         expect(subject).to be true
       end
 
-      it "updates errored_at" do
-        expect { subject }.to change { deployment.reload.errored_at }
+      it "updates failed_at" do
+        expect { subject }.to change { deployment.reload.failed_at }
       end
 
-      it "updates error_message" do
-        expect { subject }.to change { deployment.reload.error_message }.to("foo")
+      it "updates fail_message" do
+        expect { subject }.to change { deployment.reload.fail_message }.to("foo")
       end
     end
 
     context "when pending? is false" do
-      let(:deployment) { create(:deployment, :errored) }
+      let(:deployment) { create(:deployment, :failed) }
 
       it "returns false" do
         expect(subject).to be false
       end
 
-      it "doesn't update errored_at" do
-        expect { subject }.not_to change { deployment.reload.errored_at }
+      it "doesn't update failed_at" do
+        expect { subject }.not_to change { deployment.reload.failed_at }
       end
 
-      it "doesn't update error_message" do
-        expect { subject }.not_to change { deployment.reload.error_message }
+      it "doesn't update fail_message" do
+        expect { subject }.not_to change { deployment.reload.fail_message }
       end
     end
   end

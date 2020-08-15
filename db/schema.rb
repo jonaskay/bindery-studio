@@ -20,20 +20,11 @@ ActiveRecord::Schema.define(version: 2020_08_10_170528) do
     t.uuid "project_id", null: false
     t.string "instance"
     t.datetime "finished_at"
-    t.datetime "errored_at"
-    t.text "error_message"
+    t.datetime "failed_at"
+    t.string "fail_message"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["project_id"], name: "index_deployments_on_project_id"
-  end
-
-  create_table "project_messages", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "project_id", null: false
-    t.integer "name", default: 0
-    t.text "detail"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["project_id"], name: "index_project_messages_on_project_id"
   end
 
   create_table "projects", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -41,7 +32,6 @@ ActiveRecord::Schema.define(version: 2020_08_10_170528) do
     t.string "name", null: false
     t.string "title"
     t.datetime "released_at"
-    t.datetime "deployed_at"
     t.datetime "discarded_at"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
@@ -73,6 +63,5 @@ ActiveRecord::Schema.define(version: 2020_08_10_170528) do
   end
 
   add_foreign_key "deployments", "projects"
-  add_foreign_key "project_messages", "projects"
   add_foreign_key "projects", "users"
 end
