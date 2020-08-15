@@ -12,7 +12,7 @@ class Tasks::BaseController < ActionController::API
   def validate_client!
     ip = request.remote_ip
     logger.debug("Remote IP: #{ip}")
-    logger.debug("Headers: #{request.headers}")
+    logger.debug("X-Forwarded-For: #{request.env["HTTP_X_FORWARDED_FOR"]}")
     head :forbidden if ip != "10.0.0.1"
   end
 end
