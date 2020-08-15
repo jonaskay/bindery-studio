@@ -1,47 +1,27 @@
 require "rails_helper"
-require "support/helpers/googleapis_helper"
-
-RSpec.shared_examples "successful insert instance request" do
-  it "sends an insert instance request" do
-    subject
-
-    expect(insert_instance_stub).to have_been_requested
-  end
-end
 
 RSpec.describe Publisher, type: :model do
-  include GoogleapisHelper
-
-  let(:project) { create(:project) }
-  let!(:insert_instance_stub) {
-    stub(:compute, :insert_instance, params: {
-      "project" => "my-project",
-      "zone" => "my-zone",
-      "template" => "my-compositor-template"
-    }).with_json('{ "id": "42" }')
-  }
-
-  before { handle_oauth_request }
-
   describe ".publish" do
+    let(:compute_engine) { class_double(ComputeEngine).as_stubbed_const }
+    let(:project) { create(:project, id: "13371337-1337-1337-1337-133713371337") }
+
+    before { allow(compute_engine).to receive(:insert_instance) }
+
     subject { described_class.publish(project) }
 
-    include_examples "successful insert instance request"
+    it "calls ComputeEngine.insert_instance" do
+      expect(compute_engine).to(
+        receive(:insert_instance).with(
+          "my-compositor-template-13371337-1337-1337-1337-133713371337",
+          "my-compositor-template"
+        )
+      )
+
+      subject
+    end
 
     it "creates a new deployment" do
       expect { subject }.to change { project.deployments.count }.by(1)
-    end
-  end
-
-  describe "#insert_instance" do
-    let(:publisher) { Publisher.new(project) }
-
-    subject { publisher.insert_instance("foo") }
-
-    include_examples "successful insert instance request"
-
-    it "returns an operation object" do
-      expect(subject).to be_a(Google::Apis::ComputeV1::Operation)
     end
   end
 end

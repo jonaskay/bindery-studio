@@ -1,6 +1,33 @@
-require 'rails_helper'
+require "rails_helper"
+require "support/helpers/googleapis_helper"
+
+RSpec.shared_examples "successful failure" do
+  it "returns true" do
+    expect(subject).to be true
+  end
+
+  it "updates failed_at" do
+    expect { subject }.to change { deployment.reload.failed_at }
+  end
+end
+
+RSpec.shared_examples "skipped failure" do
+  it "returns false" do
+    expect(subject).to be false
+  end
+
+  it "doesn't update failed_at" do
+    expect { subject }.not_to change { deployment.reload.failed_at }
+  end
+
+  it "doesn't update fail_message" do
+    expect { subject }.not_to change { deployment.reload.fail_message }
+  end
+end
 
 RSpec.describe Deployment, type: :model do
+  include GoogleapisHelper
+
   describe "#valid?" do
     subject { deployment.valid? }
 
@@ -103,13 +130,7 @@ RSpec.describe Deployment, type: :model do
     context "when pending? is true" do
       let(:deployment) { create(:deployment, :pending) }
 
-      it "returns true" do
-        expect(subject).to be true
-      end
-
-      it "updates failed_at" do
-        expect { subject }.to change { deployment.reload.failed_at }
-      end
+      include_examples "successful failure"
 
       it "updates fail_message" do
         expect { subject }.to change { deployment.reload.fail_message }.to("foo")
@@ -119,16 +140,42 @@ RSpec.describe Deployment, type: :model do
     context "when pending? is false" do
       let(:deployment) { create(:deployment, :failed) }
 
-      it "returns false" do
-        expect(subject).to be false
+      include_examples "skipped failure"
+    end
+  end
+
+  describe "#handle_timeout" do
+    let(:compute_engine) { class_double(ComputeEngine).as_stubbed_const }
+
+    before { allow(compute_engine).to receive(:delete_instance) }
+
+    subject { deployment.handle_timeout }
+
+    context "when pending? is true" do
+      let(:deployment) { create(:deployment, :pending, instance: "foo") }
+
+      include_examples "successful failure"
+
+      it "updates fail_message" do
+        expect { subject }.to change { deployment.reload.fail_message }.to("Timeout")
       end
 
-      it "doesn't update failed_at" do
-        expect { subject }.not_to change { deployment.reload.failed_at }
-      end
+      it "calls ComputeEngine.delete_instance" do
+        expect(compute_engine).to receive(:delete_instance).with("foo")
 
-      it "doesn't update fail_message" do
-        expect { subject }.not_to change { deployment.reload.fail_message }
+        subject
+      end
+    end
+
+    context "when pending? is false" do
+      let(:deployment) { create(:deployment, :finished, instance: "foo") }
+
+      include_examples "skipped failure"
+
+      it "doesn't call ComputeEngine.delete_instance" do
+        expect(compute_engine).not_to receive(:delete_instance)
+
+        subject
       end
     end
   end

@@ -35,10 +35,14 @@ module GoogleapisHelper
   class Template
     ENDPOINTS = {
       compute: {
+        delete_instance: [
+          :delete,
+          "https://compute.googleapis.com/compute/v1/projects/{project}/zones/{zone}/instances/{instance}"
+        ],
         insert_instance: [
           :post,
           "https://compute.googleapis.com/compute/v1/projects/{project}/zones/{zone}/instances?sourceInstanceTemplate=global/instanceTemplates/{template}"
-        ],
+        ]
       },
       oauth: [
         :post,

@@ -1,12 +1,11 @@
 require "rails_helper"
+require "support/helpers/googleapis_helper"
 
 RSpec.shared_examples "no timeout error" do
-  it "doesn't update failed_at" do
-    expect { subject }.not_to change { deployment.reload.failed_at }
-  end
+  it "doesn't call Deployment#handle_timeout" do
+    expect_any_instance_of(Deployment).not_to receive(:handle_timeout)
 
-  it "doesn't update fail_message" do
-    expect { subject }.not_to change { deployment.reload.fail_message }
+    subject
   end
 end
 
@@ -18,17 +17,17 @@ RSpec.describe DeploymentMonitor, type: :model do
     subject { described_class.check_healths }
 
     context "when deployment is pending" do
-      let(:deployment) { pending_deployment }
+      let!(:deployment) { pending_deployment }
+
+      before { allow_any_instance_of(Deployment).to receive(:handle_timeout) }
 
       context "when deployment was created more than an hour ago" do
         let(:pending_deployment) { create(:deployment, :pending, created_at: 1.hour.ago) }
 
-        it "updates failed_at" do
-          expect { subject }.to change { deployment.reload.failed_at }
-        end
+        it "calls Deployment#handle_timeout" do
+          expect_any_instance_of(Deployment).to receive(:handle_timeout)
 
-        it "updates fail_message" do
-          expect { subject }.to change { deployment.reload.failed_at }
+          subject
         end
       end
 
@@ -40,13 +39,13 @@ RSpec.describe DeploymentMonitor, type: :model do
     end
 
     context "when deployment has finished" do
-      let(:deployment) { finished_deployment }
+      let!(:deployment) { finished_deployment }
 
       include_examples "no timeout error"
     end
 
     context "when deployment has failed" do
-      let(:deployment) { failed_deployment }
+      let!(:deployment) { failed_deployment }
 
       include_examples "no timeout error"
     end
